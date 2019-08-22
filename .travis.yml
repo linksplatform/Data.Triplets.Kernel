@@ -6,6 +6,7 @@ matrix:
     - os: osx
       osx_image: xcode10.1
     - os: linux
+    - os: windows
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
