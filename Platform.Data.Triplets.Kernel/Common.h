@@ -22,6 +22,10 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #ifndef LINUX
 #define LINUX
 #endif
+#elif defined(__APPLE__) && defined(__MACH__)
+#ifndef MACOS
+#define MACOS
+#endif
 #endif
 
 // see http://stackoverflow.com/questions/538134/exporting-functions-from-a-dll-with-dllexport
@@ -35,7 +39,9 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define public_calling_convention 
 #endif
 #elif defined(LINUX)
-// Linux,Unix
+#define PREFIX_DLL 
+#define public_calling_convention
+#elif defined(MACOS)
 #define PREFIX_DLL 
 #define public_calling_convention
 #endif
