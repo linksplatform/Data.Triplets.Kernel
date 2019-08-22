@@ -8,3 +8,5 @@ Platform.Data.Triplets.Kernel	: Link.h Link.c
 	${CC} ${OPTS} ${DEFS} -c -o PersistentMemoryManager.o PersistentMemoryManager.c
 	${CC} -shared -o Platform.Data.Triplets.Kernel.dll Link.o PersistentMemoryManager.o Common.o Timestamp.o
 	${CC} ${OPTS} -o test test.c Platform.Data.Triplets.Kernel.dll
+Hello	: hello.c
+	${CC} ${OPTS} -o hello hello.c
