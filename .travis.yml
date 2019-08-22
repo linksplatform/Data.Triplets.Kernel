@@ -3,6 +3,8 @@ compiler: gcc
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
+ - sudo ldconfig -v
+ - LD_LIBRARY_PATH=/usr/local/lib
  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)
  - echo $LD_LIBRARY_PATH
  - ls
