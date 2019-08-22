@@ -21,11 +21,12 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #elif defined(__linux__)  // Для Linux: получения ./.o/.so (dll):
 #ifndef LINUX
 #define LINUX
+#define UNIX
 #endif
 #elif defined(__APPLE__) && defined(__MACH__)
 #ifndef MACOS
 #define MACOS
-#define LINUX
+#define UNIX
 #endif
 #endif
 
@@ -39,10 +40,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define PREFIX_DLL __declspec(dllimport)
 #define public_calling_convention 
 #endif
-#elif defined(LINUX)
-#define PREFIX_DLL 
-#define public_calling_convention
-#elif defined(MACOS)
+#elif defined(UNIX)
 #define PREFIX_DLL 
 #define public_calling_convention
 #endif

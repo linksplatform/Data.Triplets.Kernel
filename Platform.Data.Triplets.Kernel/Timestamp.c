@@ -6,7 +6,7 @@
 #if defined(WINDOWS) 
 #include <windows.h>
 #endif
-#if defined(LINUX)
+#if defined(UNIX)
 #include <time.h>
 #define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
 #endif
@@ -24,7 +24,7 @@ signed_integer GetTimestamp()
     FILETIME osTime;
     GetSystemTimeAsFileTime(&osTime);
     timestamp = (((signed_integer)osTime.dwHighDateTime) << 32) | osTime.dwLowDateTime;
-#elif defined(LINUX)
+#elif defined(UNIX)
     // see 3.5 in http://citforum.ru/programming/c_unix/gl_3.shtml
     time_t osTime = time((time_t *)NULL);
     timestamp = osTime;

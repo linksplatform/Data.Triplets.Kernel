@@ -4,7 +4,7 @@
 
 #if defined(WINDOWS)
 #include <windows.h>
-#elif defined(LINUX)
+#elif defined(UNIX)
 // for 64-bit files
 #define _XOPEN_SOURCE 700
 // for memset
@@ -28,7 +28,7 @@
 #if defined(WINDOWS)
 HANDLE              storageFileHandle;
 HANDLE              storageFileMappingHandle;
-#elif defined(LINUX)
+#elif defined(UNIX)
 signed_integer      storageFileHandle;                  // для open()
 #endif
 int64_t             storageFileSizeInBytes;             // Текущий размер файла.
@@ -120,7 +120,7 @@ unsigned_integer GetCurrentSystemPageSize()
     GetSystemInfo(&info);
     return info.dwPageSize;
 
-#elif defined(LINUX)
+#elif defined(UNIX)
 
     long pageSize = sysconf(_SC_PAGESIZE);
     return pageSize;
@@ -132,7 +132,7 @@ void ResetStorageFile()
 {
 #if defined(WINDOWS)
     storageFileHandle = INVALID_HANDLE_VALUE;
-#elif defined(LINUX)
+#elif defined(UNIX)
     storageFileHandle = -1;
 #endif
     storageFileSizeInBytes = 0;
@@ -142,7 +142,7 @@ bool IsStorageFileOpened()
 {
 #if defined(WINDOWS)
     return storageFileHandle != INVALID_HANDLE_VALUE;
-#elif defined(LINUX)
+#elif defined(UNIX)
     return storageFileHandle != -1;
 #endif
 }
@@ -166,7 +166,7 @@ signed_integer ResetStorageFileMapping()
 #if defined(WINDOWS)
     storageFileMappingHandle = INVALID_HANDLE_VALUE;
     pointerToMappedRegion = NULL;
-#elif defined(LINUX)
+#elif defined(UNIX)
     pointerToMappedRegion = MAP_FAILED;
 #endif
     return (signed_integer)UINT64_MAX;
@@ -176,7 +176,7 @@ bool IsStorageFileMapped()
 {
 #if defined(WINDOWS)
     return storageFileMappingHandle != INVALID_HANDLE_VALUE && pointerToMappedRegion != NULL;
-#elif defined(LINUX)
+#elif defined(UNIX)
     return pointerToMappedRegion != MAP_FAILED;
 #endif
 }
@@ -236,7 +236,7 @@ signed_integer OpenStorageFile(char* filename)
     if (storageFileSizeInBytes == INVALID_FILE_SIZE)
         return ErrorWithCode("Failed to get file size.", GetLastError());
 
-#elif defined(LINUX)
+#elif defined(UNIX)
     storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (storageFileHandle == -1)
         return ErrorWithCode("Failed to open file.", errno);
@@ -276,7 +276,7 @@ signed_integer ResizeStorageFile()
                 return ErrorWithCode("Failed to set file pointer.", GetLastError());
             if (!SetEndOfFile(storageFileHandle))
                 return ErrorWithCode("Failed to set end of file.", GetLastError());
-#elif defined(LINUX)
+#elif defined(UNIX)
             // см. также под Linux, MAP_POPULATE
             // см. также mmap64() (size_t?)
             if (ftruncate(storageFileHandle, storageFileSizeInBytes) == -1)
@@ -324,7 +324,7 @@ signed_integer SetStorageFileMemoryMapping()
     if (pointerToMappedRegion == NULL)
         return ErrorWithCode("Failed to set map view of file.", GetLastError());
 
-#elif defined(LINUX)
+#elif defined(UNIX)
     pointerToMappedRegion = mmap(NULL, storageFileSizeInBytes, PROT_READ | PROT_WRITE, MAP_SHARED, storageFileHandle, 0);
 
     if (pointerToMappedRegion == MAP_FAILED)
@@ -498,7 +498,7 @@ signed_integer ResetStorageFileMemoryMapping()
 #if defined(WINDOWS)
             UnmapViewOfFile(pointerToMappedRegion);
             CloseHandle(storageFileMappingHandle);
-#elif defined(LINUX)
+#elif defined(UNIX)
             munmap(pointerToMappedRegion, storageFileSizeInBytes);
 #endif
 
@@ -533,7 +533,7 @@ signed_integer CloseStorageFile()
                 DebugInfo("Storage file is not open or already closed. Let's try to close it anyway.");
 
             CloseHandle(storageFileHandle);
-#elif defined(LINUX)
+#elif defined(UNIX)
             if (storageFileHandle == -1)
                 return Error("Storage file is not open or already closed.");
 
