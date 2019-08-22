@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.com/linksplatform/Data.Triplets.Kernel.svg?branch=master)](https://travis-ci.com/linksplatform/Data.Triplets.Kernel)
 
-# NuGet Package
+# Data.Triplets.Kernel
+
+## NuGet Package
 
 [Platform.Data.Triplets.Kernel](https://www.nuget.org/packages/Platform.Data.Triplets.Kernel)
-
-# Data.Triplets.Kernel
 
 ## Useful links to understand code
 * [GNU C Macros](https://gcc.gnu.org/onlinedocs/cpp/Macros.html#Macros)
