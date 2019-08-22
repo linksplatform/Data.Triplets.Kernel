@@ -25,8 +25,7 @@ cd ..
 # Clean out existing contents
 rm -rf out/${TARGET_PLATFORM}/**/* || exit 0
 
-mkdir out/${TARGET_PLATFORM}
-mkdir out/${TARGET_PLATFORM}/native
+mkdir -p out/${TARGET_PLATFORM}/native
 
 # Copy compiled binaries
 cp Platform.${TRAVIS_REPO_NAME}/Platform.${TRAVIS_REPO_NAME} out/${TARGET_PLATFORM}/native/${TARGET_PLATFORM_PREFIX}Platform.${TRAVIS_REPO_NAME}${TARGET_PLATFORM_SUFFIX}
