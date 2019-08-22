@@ -28,7 +28,7 @@ rm -rf out/${TARGET_PLATFORM}/**/* || exit 0
 mkdir -p out/${TARGET_PLATFORM}/native
 
 # Copy compiled binaries
-cp Platform.${TRAVIS_REPO_NAME}/Platform.${TRAVIS_REPO_NAME} out/${TARGET_PLATFORM}/native/${TARGET_PLATFORM_PREFIX}Platform.${TRAVIS_REPO_NAME}${TARGET_PLATFORM_SUFFIX}
+cp Platform.${TRAVIS_REPO_NAME}/Platform.${TRAVIS_REPO_NAME} out/${TARGET_PLATFORM}/native/${TARGET_PLATFORM_PREFIX}Platform_${TRAVIS_REPO_NAME//./_}${TARGET_PLATFORM_SUFFIX}
 
 cd out
 
