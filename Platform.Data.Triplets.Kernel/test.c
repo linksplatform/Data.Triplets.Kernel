@@ -22,7 +22,7 @@ int main() {
 
     CloseLinks();
 
-	printf("Database closed.");
+	printf("Database closed.\n");
     
     return 0;
 }
