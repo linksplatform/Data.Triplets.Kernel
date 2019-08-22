@@ -25,6 +25,7 @@ cd ..
 # Clean out existing contents
 rm -rf out/${TARGET_PLATFORM}/**/* || exit 0
 
+mkdir out/${TARGET_PLATFORM}
 mkdir out/${TARGET_PLATFORM}/native
 
 # Copy compiled binaries
