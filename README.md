@@ -17,7 +17,7 @@ Build library and test for it:
 $ make
 ```
 
-It is actually builds into `Platform.Data.Kernel.dll` on Linux too, because it is referenced .NET Library like `Platform.Data.Core.dll` (exactly as `Platform.Data.Kernel.dll`).
+The Makefile configured to build the library as `Platform.Data.Triplets.Kernel` on any platform right now. But at autodeploy these libraries renamed into `Platform_Data_Triplets_Kernel.dll` (for Windows), `libPlatform_Data_Triplets_Kernel.so` (Linux) and `libPlatform_Data_Triplets_Kernel.dylib` (macOS). Latest version of binaries can be found at [binaries](https://github.com/linksplatform/Data.Triplets.Kernel/tree/binaries) branch.
 
 Run test:
 ```
@@ -26,7 +26,7 @@ $ ./run.sh
 
 To enable debug output put `-DDEBUG` option into makefile.
 
-Compiled library will be available at `Platform\Platform.Data.Kernel` folder as `Platform.Data.Kernel.dll` file.
+Compiled library will be available at `Platform.Data.Triplets.Kernel` folder as `Platform_Data_Triplets_Kernel` file.
 
 To view resulting database file in binary:
 ```
@@ -42,13 +42,13 @@ To build the code on Windows the compiler is required:
 
 #### Using Visual Studio
 
-Open `Platform.Data.Kernel.vcxproj` or `Platform.sln` using Visual Studio (can be found in `Platform` folder)
+Open `Platform.Data.Triplets.Kernel.sln` using Visual Studio (can be found in root folder of repository)
 
 Press `CTRL+SHIFT+B` or `F6` or use menu item (`Build Solution` or `Build Platform.Data.Kernel`) from `Build` menu.
 
-Compiled library will be available at `Debug`/`Release` folder of in `Platform` folder as `Platform.Data.Kernel.dll` file.
+Compiled library will be available at `Debug`/`Release` folder of in root folder of repository as `Platform.Data.Triplets.Kernel.dll` file.
 
-To Run tests in Visual Studio use `Test Explorer`. Actual test are located at `Platform.Data.Kernel.Tests` and `Platform.Tests` projects.
+To Run tests in Visual Studio use `Test Explorer`. Actual test are located at `Platform.Data.Triplets.Kernel.Tests` project.
 
 #### Using MinGW
 
@@ -68,6 +68,6 @@ $ test
 
 To enable debug output put `-DDEBUG` option into makefile.
 
-Compiled library will be available at `Platform\Platform.Data.Kernel` folder as `Platform.Data.Kernel.dll` file.
+Compiled library will be available at `Platform.Data.Triplets.Kernel` folder as `Platform.Data.Triplets.Kernel` file.
 
 You can use any HEX Viewer/Editor to check for `db.links` structure after the `test` was run.
