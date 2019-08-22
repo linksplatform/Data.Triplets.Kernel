@@ -7,4 +7,4 @@ Platform.Data.Triplets.Kernel.a	: Link.h Link.c
 	${CC} ${OPTS} ${DEFS} -c -o Link.o Link.c
 	${CC} ${OPTS} ${DEFS} -c -o PersistentMemoryManager.o PersistentMemoryManager.c
 	${CC} -shared -o Platform.Data.Triplets.Kernel.so Link.o PersistentMemoryManager.o Common.o Timestamp.o
-	${CC} ${OPTS} -o test test.c -L$(pwd} -l:Platform.Data.Triplets.Kernel.so
+	${CC} ${OPTS} -o test test.c -L. -l:Platform.Data.Triplets.Kernel.so
