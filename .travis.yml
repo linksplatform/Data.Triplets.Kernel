@@ -3,6 +3,7 @@ compiler: gcc
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
- - LD_LIBRARY_PATH=`pwd`
+ - LD_LIBRARY_PATH=$(pwd)
+ - echo $LD_LIBRARY_PATH
  - ls
  - ./test
