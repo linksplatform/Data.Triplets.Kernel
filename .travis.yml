@@ -9,4 +9,5 @@ matrix:
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
+ - export LD_LIBRARY_PATH=$(pwd)
  - ./test
