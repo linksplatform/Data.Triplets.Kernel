@@ -7,7 +7,7 @@ matrix:
       osx_image: xcode10.1
     - os: linux
     - os: windows
-    - script:
+      script:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
        - test
