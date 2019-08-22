@@ -32,8 +32,17 @@ matrix:
       after_success:
        - bash ./publish-binaries.sh
     - os: windows
+      before_install:
+       - export TARGET_PLATFORM="win-x64"
+       - export TARGET_PLATFORM_PREFIX=""
+       - export TARGET_PLATFORM_SUFFIX=".dll"
+       - export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+       - export SOURCE_BRANCH="master"
       script:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
        - ./test
+       - cd ..
+      after_success:
+       - bash ./publish-binaries.sh
 
