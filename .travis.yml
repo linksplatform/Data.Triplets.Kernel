@@ -3,17 +3,28 @@ compiler: gcc
 matrix:
   include:
     - os: osx
-      script:
-       - cd Platform.Data.Triplets.Kernel
-       - make
-       - ./test
-    - os: linux
       before_install:
-       - export TARGET_PLATFORM="linux-x64"
+       - export TARGET_PLATFORM="osx-x64"
+       - export TARGET_PLATFORM_PREFIX="lib"
+       - export TARGET_PLATFORM_SUFFIX=".dylib"
        - export TRAVIS_REPO_NAME=$(echo "${TRAVIS_REPO_SLUG#*/}" | sed 's/.*/\u&/')
        - export SOURCE_BRANCH="master"
       script:
-       - cd Platform.Data.Triplets.Kernel
+       - cd Platform.${TRAVIS_REPO_NAME}
+       - make
+       - ./test
+       - cd ..
+      after_success:
+       - bash ./publish-binaries.sh
+    - os: linux
+      before_install:
+       - export TARGET_PLATFORM="linux-x64"
+       - export TARGET_PLATFORM_PREFIX="lib"
+       - export TARGET_PLATFORM_SUFFIX=".so"
+       - export TRAVIS_REPO_NAME=$(echo "${TRAVIS_REPO_SLUG#*/}" | sed 's/.*/\u&/')
+       - export SOURCE_BRANCH="master"
+      script:
+       - cd Platform.${TRAVIS_REPO_NAME}
        - make
        - export LD_LIBRARY_PATH=$(pwd)
        - ./test

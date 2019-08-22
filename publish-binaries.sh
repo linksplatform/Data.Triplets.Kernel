@@ -29,7 +29,7 @@ mkdir out/${TARGET_PLATFORM}
 mkdir out/${TARGET_PLATFORM}/native
 
 # Copy compiled binaries
-cp Platform.Data.Triplets.Kernel/Platform.Data.Triplets.Kernel out/${TARGET_PLATFORM}/native/libPlatform.Data.Triplets.Kernel.so
+cp Platform.${TRAVIS_REPO_NAME}/Platform.${TRAVIS_REPO_NAME} out/${TARGET_PLATFORM}/native/${TARGET_PLATFORM_PREFIX}Platform.${TRAVIS_REPO_NAME}${TARGET_PLATFORM_SUFFIX}
 
 cd out
 
@@ -42,7 +42,7 @@ git remote add origin https://$COMMIT_USER_NAME:$TOKEN@$REPOSITORY.git
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
 git add --all
-git commit -m "Deploy to GitHub Pages: ${SHA}"
+git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}"
 
 # Now that we're all set up, we can push.
 git push https://$COMMIT_USER_NAME:$TOKEN@$REPOSITORY.git $TARGET_BRANCH
