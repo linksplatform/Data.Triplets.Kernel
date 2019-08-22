@@ -1,10 +1,10 @@
 CC=gcc
 OPTS=-O3 --std=c99 -fPIC -W -Wall -Wextra -pedantic
 DEFS=-DLINKS_DLL_EXPORT -D_XOPEN_SOURCE=700
-Platform.Data.Triplets.Kernel.a	: Link.h Link.c
+Platform.Data.Triplets.Kernel	: Link.h Link.c
 	${CC} ${OPTS} ${DEFS} -c -o Common.o Common.c
 	${CC} ${OPTS} ${DEFS} -c -o Timestamp.o Timestamp.c
 	${CC} ${OPTS} ${DEFS} -c -o Link.o Link.c
 	${CC} ${OPTS} ${DEFS} -c -o PersistentMemoryManager.o PersistentMemoryManager.c
-	${CC} -shared -o Platform.Data.Triplets.Kernel.so Link.o PersistentMemoryManager.o Common.o Timestamp.o
-	${CC} ${OPTS} -o test test.c Platform.Data.Triplets.Kernel.so
+	${CC} -shared -o Platform.Data.Triplets.Kernel.dll Link.o PersistentMemoryManager.o Common.o Timestamp.o
+	${CC} ${OPTS} -o test test.c Platform.Data.Triplets.Kernel.dll
