@@ -10,6 +10,7 @@ matrix:
       script:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
+       - dir
        - test
 script:
  - cd Platform.Data.Triplets.Kernel
