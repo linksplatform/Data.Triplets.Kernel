@@ -11,7 +11,7 @@ matrix:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
        - dir
-       - test
+       - test.exe
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
