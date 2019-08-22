@@ -25,6 +25,8 @@ cd ..
 # Clean out existing contents
 rm -rf out/${TARGET_PLATFORM}/**/* || exit 0
 
+mkdir out/${TARGET_PLATFORM}/native
+
 # Copy compiled binaries
 cp Platform.Data.Triplets.Kernel/Platform.Data.Triplets.Kernel out/${TARGET_PLATFORM}/native/libPlatform.Data.Triplets.Kernel.so
 
