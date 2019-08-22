@@ -12,8 +12,8 @@ matrix:
        - mingw32-make
        - dir
        - dir /c/Users/travis/.travis/functions
-       - hello
-       - test
+       - ./hello.exe
+       - ./test.exe
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
