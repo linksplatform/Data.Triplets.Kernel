@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Platform.Data.Kernel", "Platform.Data.Triplets.Kernel\Platform.Data.Kernel.vcxproj", "{6B34F379-3D89-4EC7-BA47-C1A1A7B4421C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Platform.Data.Triplets.Kernel", "Platform.Data.Triplets.Kernel\Platform.Data.Triplets.Kernel.vcxproj", "{6B34F379-3D89-4EC7-BA47-C1A1A7B4421C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Platform.Data.Kernel.Tests", "Platform.Data.Triplets.Kernel.Tests\Platform.Data.Kernel.Tests.vcxproj", "{F1FE5E55-BDA9-4623-8B16-163251404FD6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Platform.Data.Triplets.Kernel.Tests", "Platform.Data.Triplets.Kernel.Tests\Platform.Data.Triplets.Kernel.Tests.vcxproj", "{F1FE5E55-BDA9-4623-8B16-163251404FD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
