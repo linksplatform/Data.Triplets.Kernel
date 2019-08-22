@@ -1,5 +1,10 @@
 language: cpp
 compiler: gcc
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode10.1
+    - os: linux
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
