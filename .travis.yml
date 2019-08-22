@@ -11,5 +11,4 @@ script:
  - export LD_LIBRARY_PATH=$(pwd)
  - echo $LD_LIBRARY_PATH
  - make
- - sudo cp Platform.Data.Triplets.Kernel.so /usr/lib
  - ./test
