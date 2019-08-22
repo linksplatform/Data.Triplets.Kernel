@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/linksplatform/Data.Triplets.Kernel.svg?branch=master)](https://travis-ci.com/linksplatform/Data.Triplets.Kernel)
+
 # Data.Triplets.Kernel
 
 ## Useful links to understand code
