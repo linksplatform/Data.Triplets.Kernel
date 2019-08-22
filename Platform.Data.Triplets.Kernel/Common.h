@@ -25,6 +25,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #elif defined(__APPLE__) && defined(__MACH__)
 #ifndef MACOS
 #define MACOS
+#define LINUX
 #endif
 #endif
 
