@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata>
+    <id>Platform.Data.Triplets.Kernel</id>
+    <version>0.0.3</version>
+    <authors>Konstantin Diachenko</authors>
+    <owners>Konstantin Diachenko</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">GPL-3.0-only</license>
+    <projectUrl>https://github.com/linksplatform/Data.Triplets.Kernel</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/linksplatform/Documentation/18469f4d033ee9a5b7b84caab9c585acab2ac519/doc/Avatar-rainbow-icon-64x64.png</iconUrl>
+    <description>This package contains platform-specific native code builds of LinksPlatform's Platform.Data.Triplets.Kernel library.</description>
+    <releaseNotes>Platform.Data.Triplets.Kernel.targets configuration fixed.</releaseNotes>
+    <copyright>Konstantin Diachenko</copyright>
+    <summary>LinksPlatform's Platform.Data.Triplets.Kernel is a Portable Class Library (PCL) for low-level (raw) access to Triplets storage.</summary>
+    <tags>LinksPlatform Data.Triplets.Kernel Triplets native</tags>
+    <repository type="git" url="https://github.com/linksplatform/Data.Triplets.Kernel" />
+  </metadata>
+  <files>
+    <file src="build\Platform.Data.Triplets.Kernel.targets" target="build\Platform.Data.Triplets.Kernel.targets" />
+    <file src="runtimes\linux-x64\native\libPlatform_Data_Triplets_Kernel.so" target="runtimes\linux-x64\native\libPlatform_Data_Triplets_Kernel.so" />
+    <file src="runtimes\osx-x64\native\libPlatform_Data_Triplets_Kernel.dylib" target="runtimes\osx-x64\native\libPlatform_Data_Triplets_Kernel.dylib" />
+    <file src="runtimes\win-x64\native\Platform_Data_Triplets_Kernel.dll" target="runtimes\win-x64\native\Platform_Data_Triplets_Kernel.dll" />
+  </files>
+</package>

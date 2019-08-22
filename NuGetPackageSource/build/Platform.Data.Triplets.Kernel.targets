@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <Content Include="$(MSBuildThisFileDirectory)..\runtimes\win-x64\native\Platform_Data_Triplets_Kernel.dll">
+      <Link>Platform_Data_Triplets_Kernel.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(OS)' == 'Unix' AND Exists('/Library/Frameworks') ">
+    <Content Include="$(MSBuildThisFileDirectory)..\runtimes\osx-x64\native\libPlatform_Data_Triplets_Kernel.dylib">
+      <Link>libPlatform_Data_Triplets_Kernel.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(OS)' == 'Unix' AND !Exists('/Library/Frameworks') ">
+    <Content Include="$(MSBuildThisFileDirectory)..\runtimes\linux-x64\native\libPlatform_Data_Triplets_Kernel.so">
+      <Link>libPlatform_Data_Triplets_Kernel.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
+</Project>
