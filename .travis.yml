@@ -1,5 +1,6 @@
 language: cpp
 compiler: gcc
+sudo: required
 matrix:
   include:
     - os: osx
@@ -7,7 +8,8 @@ matrix:
     - os: linux
 script:
  - cd Platform.Data.Triplets.Kernel
- - export LIBRARY_PATH=$(pwd)
+ - export LD_LIBRARY_PATH=$(pwd)
+ - echo $(LD_LIBRARY_PATH)
  - make
  - sudo cp Platform.Data.Triplets.Kernel.so /usr/lib
  - ./test
