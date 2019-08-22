@@ -6,4 +6,4 @@ script:
  - LD_LIBRARY_PATH=$(pwd)
  - echo $LD_LIBRARY_PATH
  - ls
- - ./test
+ - sudo ./test
