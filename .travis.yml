@@ -1,20 +1,21 @@
 language: cpp
 compiler: gcc
-sudo: required
 matrix:
   include:
     - os: osx
-      osx_image: xcode10.1
+      script:
+       - cd Platform.Data.Triplets.Kernel
+       - make
+       - ./test
     - os: linux
+      script:
+       - cd Platform.Data.Triplets.Kernel
+       - make
+       - export LD_LIBRARY_PATH=$(pwd)
+       - ./test
     - os: windows
       script:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
-       - dir
-       - hello
-       - test
-script:
- - cd Platform.Data.Triplets.Kernel
- - make
- - export LD_LIBRARY_PATH=$(pwd)
- - ./test
+       - ./test
+
