@@ -1,8 +1,7 @@
 language: cpp
 compiler: gcc
-sudo: required
 script:
  - cd Platform.Data.Triplets.Kernel
  - make
- - cp Platform.Data.Triplets.Kernel.so /usr/lib
+ - sudo cp Platform.Data.Triplets.Kernel.so /usr/lib
  - ./test
