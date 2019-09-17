@@ -1,3 +1,4 @@
+[![NuGet Version and Downloads count](https://buildstats.info/nuget/Platform.Data.Triplets.Kernel)](https://www.nuget.org/packages/Platform.Data.Triplets.Kernel)
 [![Build Status](https://travis-ci.com/linksplatform/Data.Triplets.Kernel.svg?branch=master)](https://travis-ci.com/linksplatform/Data.Triplets.Kernel)
 
 # Data.Triplets.Kernel
