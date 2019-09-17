@@ -2,11 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
   <metadata>
     <id>Platform.Data.Triplets.Kernel</id>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <authors>Konstantin Diachenko</authors>
     <owners>Konstantin Diachenko</owners>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <license type="expression">GPL-3.0-only</license>
+    <license type="expression">LGPL-3.0-only</license>
     <projectUrl>https://github.com/linksplatform/Data.Triplets.Kernel</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/linksplatform/Documentation/18469f4d033ee9a5b7b84caab9c585acab2ac519/doc/Avatar-rainbow-icon-64x64.png</iconUrl>
     <description>This package contains platform-specific native code builds of LinksPlatform's Platform.Data.Triplets.Kernel library.</description>

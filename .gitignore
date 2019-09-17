@@ -406,3 +406,6 @@ MigrationBackup/
 
 # Links Storage files
 *.links
+
+# Runtimes folder
+NuGetPackageSource/runtimes/
