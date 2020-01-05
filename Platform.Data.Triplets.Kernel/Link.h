@@ -59,6 +59,7 @@ extern "C" {
     PREFIX_DLL unsigned_integer GetLinkNumberOfReferersByTarget(link_index linkIndex);
 
     PREFIX_DLL void WalkThroughAllReferersBySource(link_index rootIndex, visitor);
+    // PREFIX_DLL void WalkThroughAllReferersBySource1(link_index rootIndex, visitor);
     PREFIX_DLL signed_integer WalkThroughReferersBySource(link_index rootIndex, stoppable_visitor stoppableVisitor);
 
     PREFIX_DLL void WalkThroughAllReferersByLinker(link_index rootIndex, visitor);

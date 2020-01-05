@@ -230,6 +230,13 @@ void public_calling_convention WalkThroughAllReferersBySource(link_index rootInd
     if (rootIndex != null) WalkThroughAllReferersBySourceCore(GetLink(rootIndex)->BySourceRootIndex, visitor);
 }
 
+//void public_calling_convention WalkThroughAllReferersBySource1(link_index rootIndex, visitor visitor)
+//{
+//    BeginWalkThroughtTreeOfReferersBySource(element, rootIndex);
+//    visitor(element);
+//    EndWalkThroughtTreeOfReferersBySource(element);
+//}
+
 signed_integer public_calling_convention WalkThroughReferersBySource(link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
     if (rootIndex != null) return WalkThroughReferersBySourceCore(GetLink(rootIndex)->BySourceRootIndex, stoppableVisitor);
