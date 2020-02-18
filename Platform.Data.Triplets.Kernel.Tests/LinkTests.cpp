@@ -53,7 +53,7 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index isA = CreateLink(itself, itself, itself);
             link_index isNotA = CreateLink(itself, itself, isA);
@@ -72,7 +72,7 @@ namespace PlatformDataKernelTests
 
             Assert::IsTrue(GetLinksCount() == 0);
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
@@ -83,7 +83,7 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index isA = CreateLink(itself, itself, itself);
             link_index isNotA = CreateLink(itself, itself, isA);
@@ -107,7 +107,7 @@ namespace PlatformDataKernelTests
             Assert::IsTrue(isAVisitorCounter == (1 + 3));
             Assert::IsTrue(linkVisitorCounter == (1 + 3 + 4));
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
