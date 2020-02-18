@@ -17,9 +17,9 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
@@ -30,13 +30,13 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index link = AllocateLink();
 
             FreeLink(link);
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
@@ -47,14 +47,14 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index link1 = AllocateLink();
             link_index link2 = AllocateLink();
 
             FreeLink(link1); // Creates "hole" and forces "Attach" to be executed
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
@@ -65,7 +65,7 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index link1 = AllocateLink();
             link_index link2 = AllocateLink();
@@ -73,7 +73,7 @@ namespace PlatformDataKernelTests
             FreeLink(link1); // Creates "hole" and forces "Attach" to be executed
             FreeLink(link2); // Removes both links, all "Attached" links forced to be "Detached" here
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
@@ -84,13 +84,13 @@ namespace PlatformDataKernelTests
 
             remove(filename);
 
-			Assert::IsTrue(succeeded(OpenLinks(filename)));
+            Assert::IsTrue(succeeded(OpenLinks(filename)));
 
             link_index mapped = GetMappedLink(0);
 
             SetMappedLink(0, mapped);
 
-			Assert::IsTrue(succeeded(CloseLinks()));
+            Assert::IsTrue(succeeded(CloseLinks()));
 
             remove(filename);
         }
