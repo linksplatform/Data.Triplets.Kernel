@@ -88,7 +88,6 @@ link_index public_calling_convention ReplaceLink(link_index linkIndex, link_inde
         uint64_t firstRefererByLinkerIndex = link->ByLinkerRootIndex;
         uint64_t firstRefererByTargetIndex = link->ByTargetRootIndex;
 
-        // что здесь происходит - непонятно
         while (firstRefererBySourceIndex != null)
         {
             UpdateLink(
