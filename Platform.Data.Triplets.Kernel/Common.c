@@ -23,7 +23,7 @@ signed_integer ErrorWithCode(char* message, signed_integer errorCode)
 void DebugInfo(char* message)
 {
     #ifdef DEBUG
-    printf("%s\n", message);
+        printf("%s\n", message);
     #else
         ;
     #endif
