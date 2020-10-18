@@ -10,8 +10,6 @@ signed_integer Error(char* message)
     #endif
 }
 
-
-
 signed_integer ErrorWithCode(char* message, signed_integer errorCode)
 {
     #ifdef DEBUG
@@ -21,8 +19,6 @@ signed_integer ErrorWithCode(char* message, signed_integer errorCode)
         #define ErrorWithCode(message, errorCode) (ERROR_RESULT)
     #endif
 }
-
-
 
 void DebugInfo(char* message)
 {
