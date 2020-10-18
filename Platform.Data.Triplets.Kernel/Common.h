@@ -54,7 +54,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #endif
 
 #define SUCCESS_RESULT 1
-#define succeeded(x) SUCCESS_RESULT == (x)
+#define succeeded(x) (SUCCESS_RESULT == (x))
 #define ERROR_RESULT 0
 #define failed(x) SUCCESS_RESULT != (x)
 

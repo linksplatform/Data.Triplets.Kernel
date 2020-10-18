@@ -71,7 +71,7 @@ link_index public_calling_convention CreateLink(link_index sourceIndex, link_ind
 link_index public_calling_convention SearchLink(link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
 {
     // смотря, какое дерево меньше (target или source); по linker - список
-    if (GetNumberOfReferersByTarget(targetIndex) <= GetNumberOfReferersBySource(sourceIndex))
+    if (GetNumberOfReferersBySource(sourceIndex) >= GetNumberOfReferersByTarget(targetIndex))
         return SearchRefererOfTarget(targetIndex, sourceIndex, linkerIndex);
     else
         return SearchRefererOfSource(sourceIndex, targetIndex, linkerIndex);
