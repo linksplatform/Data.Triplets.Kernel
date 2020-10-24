@@ -257,7 +257,7 @@ signed_integer OpenStorageFile(char* filename)
     storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (storageFileHandle == -1)
     {
-        ERROR_MESSAGE_WITH_CODE("Failed to open file.", errno);
+        ERROR_MESSAGE_WITH_CODE  ("Failed to open file.", errno);
         return ERROR_RESULT;
     }
 
