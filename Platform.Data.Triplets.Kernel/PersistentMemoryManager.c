@@ -150,14 +150,20 @@ bool IsStorageFileOpened()
 signed_integer EnsureStorageFileOpened()
 {
     if (!IsStorageFileOpened())
-        return Error("Storage file is not open.");
+    {
+        ERROR("Storage file is not open.");
+        return ERROR_RESULT;
+    }
     return SUCCESS_RESULT;
 }
 
 signed_integer EnsureStorageFileClosed()
 {
     if (IsStorageFileOpened())
-        return Error("Storage file is not closed.");
+    {
+        ERROR("Storage file is not closed.");
+        return ERROR_RESULT;
+    }
     return SUCCESS_RESULT;
 }
 
@@ -184,14 +190,20 @@ bool IsStorageFileMapped()
 signed_integer EnsureStorageFileMapped()
 {
     if (!IsStorageFileMapped())
-        return Error("Storage file is not mapped.");
+    {
+        ERROR("Storage file is not mapped.");
+        return ERROR_RESULT;
+    }
     return SUCCESS_RESULT;
 }
 
 signed_integer EnsureStorageFileUnmapped()
 {
     if (IsStorageFileMapped())
-        return Error("Storage file already mapped.");
+    {
+        ERROR("Storage file already mapped.");
+        return ERROR_RESULT;
+    }
     return SUCCESS_RESULT;
 }
 
@@ -220,30 +232,41 @@ signed_integer OpenStorageFile(char* filename)
     if (failed(EnsureStorageFileClosed()))
         return ERROR_RESULT;
 
-    DebugInfo("Opening file...");
+    DEBUG("Opening file...");
 
 #if defined(WINDOWS)
     // см. MSDN "CreateFile function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858%28v=vs.85%29.aspx
     storageFileHandle = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (storageFileHandle == INVALID_HANDLE_VALUE)
+    {
         // см. MSDN "GetLastError function", http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360%28v=vs.85%29.aspx
-        return ErrorWithCode("Failed to open file.", GetLastError());
-
+        ERROR_WITH_CODE("Failed to open file.", GetLastError());
+        return ERROR_RESULT;
+    }
     // см. MSDN "GetFileSize function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa364955%28v=vs.85%29.aspx
     // не знаю, как поправить здесь:
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     *((LPDWORD)&storageFileSizeInBytes) = GetFileSize(storageFileHandle, (LPDWORD)&storageFileSizeInBytes + 1);
     if (storageFileSizeInBytes == INVALID_FILE_SIZE)
-        return ErrorWithCode("Failed to get file size.", GetLastError());
+    {
+        ERROR_WITH_CODE("Failed to get file size.", GetLastError());
+        return ERROR_RESULT;
+    }
 
 #elif defined(UNIX)
     storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (storageFileHandle == -1)
-        return ErrorWithCode("Failed to open file.", errno);
+    {
+        ERROR_WITH_CODE("Failed to open file.", errno);
+        return ERROR_RESULT;
+    }
 
     struct stat statbuf;
     if (fstat(storageFileHandle, &statbuf) != 0)
-        return ErrorWithCode("Failed to get file size.", errno);
+    {
+        ERROR_WITH_CODE("Failed to get file size.", errno);
+        return ERROR_RESULT;
+    }
 
     storageFileSizeInBytes = statbuf.st_size; // ? uint64_t = off_t
 #endif
@@ -268,25 +291,34 @@ signed_integer ResizeStorageFile()
             LARGE_INTEGER distanceToMoveFilePointer = { 0 };
             LARGE_INTEGER currentFilePointer = { 0 };
             if (!SetFilePointerEx(storageFileHandle, distanceToMoveFilePointer, &currentFilePointer, FILE_CURRENT))
-                return ErrorWithCode("Failed to get current file pointer.", GetLastError());
+            {
+                ERROR_WITH_CODE("Failed to get current file pointer.", GetLastError());
+                return ERROR_RESULT;
+            }
 
             distanceToMoveFilePointer.QuadPart = storageFileSizeInBytes - currentFilePointer.QuadPart;
 
-            if (!SetFilePointerEx(storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END))
-                return ErrorWithCode("Failed to set file pointer.", GetLastError());
+            if (!SetFilePointerEx(storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END)){
+                ERROR_WITH_CODE("Failed to set file pointer.", GetLastError());
+                return ERROR_RESULT;
+            }
             if (!SetEndOfFile(storageFileHandle))
-                return ErrorWithCode("Failed to set end of file.", GetLastError());
+            {
+                ERROR_WITH_CODE("Failed to set end of file.", GetLastError());
+                return ERROR_RESULT;
+            }
 #elif defined(UNIX)
             // см. также под Linux, MAP_POPULATE
             // см. также mmap64() (size_t?)
             if (ftruncate(storageFileHandle, storageFileSizeInBytes) == -1)
-                return ErrorWithCode("Failed to resize file.", errno);
+            {
+                ERROR_WITH_CODE("Failed to resize file.", errno);
+                return ERROR_RESULT;
+            }
 #endif
-
             return SUCCESS_RESULT;
         }
     }
-
     return ERROR_RESULT;
 }
 
@@ -298,7 +330,7 @@ signed_integer SetStorageFileMemoryMapping()
     if (failed(EnsureStorageFileUnmapped()))
         return ERROR_RESULT;
 
-    DebugInfo("Setting memory mapping of storage file..");
+    DEBUG("Setting memory mapping of storage file..");
 
     // по-крайней мере - минимальный блок для линков + сервисный блок
     if (storageFileSizeInBytes < storageFileMinSizeInBytes)
@@ -314,7 +346,10 @@ signed_integer SetStorageFileMemoryMapping()
     // см. MSDN "CreateFileMapping function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa366537%28v=vs.85%29.aspx
     storageFileMappingHandle = CreateFileMapping(storageFileHandle, NULL, PAGE_READWRITE, 0, (DWORD)storageFileSizeInBytes, NULL);
     if (storageFileMappingHandle == INVALID_HANDLE_VALUE)
-        return ErrorWithCode("Mapping creation failed.", GetLastError());
+    {
+        ERROR_WITH_CODE("Mapping creation failed.", GetLastError());
+        return ERROR_RESULT;
+    }
 
     // аналог mmap(),
     // см. MSDN "MapViewOfFileEx function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa366763%28v=vs.85%29.aspx
@@ -322,13 +357,19 @@ signed_integer SetStorageFileMemoryMapping()
     // hFileMappingObject [in] A handle to a file mapping object. The CreateFileMapping and OpenFileMapping functions return this handle.
     pointerToMappedRegion = MapViewOfFileEx(storageFileMappingHandle, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0, pointerToMappedRegion);
     if (pointerToMappedRegion == NULL)
-        return ErrorWithCode("Failed to set map view of file.", GetLastError());
+    {
+        ERROR_WITH_CODE("Failed to set map view of file.", GetLastError());
+        return ERROR_RESULT;
+    }
 
 #elif defined(UNIX)
     pointerToMappedRegion = mmap(NULL, storageFileSizeInBytes, PROT_READ | PROT_WRITE, MAP_SHARED, storageFileHandle, 0);
 
     if (pointerToMappedRegion == MAP_FAILED)
-        return ErrorWithCode("Failed to set map view of file.", errno);
+    {
+        ERROR_WITH_CODE("Failed to set map view of file.", errno);
+        return ERROR_RESULT;
+    }
 #endif
 
     //       Storage File Structure
@@ -387,16 +428,24 @@ signed_integer SetStorageFileMemoryMapping()
 
     if (*pointerToDataSeal == LINKS_DATA_SEAL_64BIT)
     { // opening
-        DebugInfo("Storage file opened.");
+        DEBUG("Storage file opened.");
 
         if (*pointerToLinkIndexSize != sizeof(link_index))
-            return ResetStorageFileMapping() & Error("Opening storage file with different link index size is not supported yet.") & CloseStorageFile();
+        {
+            ERROR("Opening storage file with different link index size is not supported yet.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
 
         if (*pointerToMappingLinksMaxSize != expectedMappingLinksMaxSize)
-            return ResetStorageFileMapping() & Error("Opening storage file with different system page size is not supported yet.") & CloseStorageFile();
-
+        {
+            ERROR("Opening storage file with different system page size is not supported yet.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
         if (*pointerToLinksSize > *pointerToLinksMaxSize)
-            return ResetStorageFileMapping() & Error("Saved links size counter is set to bigger value than maximum allowed size. Storage file is damaged.") & CloseStorageFile();
+        {
+            ERROR("Saved links size counter is set to bigger value than maximum allowed size. Storage file is damaged.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
 
         *pointerToLinksMaxSize = (storageFileSizeInBytes - serviceBlockSizeInBytes) / sizeof(Link);
 
@@ -406,7 +455,7 @@ signed_integer SetStorageFileMemoryMapping()
     }
     else
     { // creation
-        DebugInfo("Storage file created.");
+        DEBUG("Storage file created.");
 
         *pointerToLinkIndexSize = sizeof(link_index);
         *pointerToMappingLinksMaxSize = expectedMappingLinksMaxSize;
@@ -420,7 +469,7 @@ signed_integer SetStorageFileMemoryMapping()
             memset(pointerToLinks, 0, sizeof(Link));
     }
 
-    DebugInfo("Memory mapping of storage file is set.");
+    DEBUG("Memory mapping of storage file is set.");
 
     PrintLinksDatabaseSize();
 
@@ -436,10 +485,15 @@ signed_integer EnlargeStorageFile()
             if (succeeded(ResetStorageFileMemoryMapping()))
             {
                 if (storageFileSizeInBytes >= storageFileMinSizeInBytes)
+                {
                     storageFileSizeInBytes += baseBlockSizeInBytes;
+                }
                 else
-                    return Error("File size is less than minimum allowed size.");
-
+                {
+                    ERROR("File size is less than minimum allowed size.");
+                    return ERROR_RESULT;
+                }
+                    
                 if (succeeded(SetStorageFileMemoryMapping()))
                     return SUCCESS_RESULT;
             }
@@ -482,14 +536,14 @@ signed_integer ResetStorageFileMemoryMapping()
     {
         if (succeeded(EnsureStorageFileMapped()))
         {
-            DebugInfo("Resetting memory mapping of storage file...");
+            DEBUG("Resetting memory mapping of storage file...");
 
             PrintLinksDatabaseSize();
 
             if (*pointerToDataSeal != LINKS_DATA_SEAL_64BIT)
             {
                 *pointerToDataSeal = LINKS_DATA_SEAL_64BIT; // Запечатываем файл
-                DebugInfo("Storage file sealed.");
+                DEBUG("Storage file sealed.");
             }
 
             // Считаем реальный размер файла
@@ -507,7 +561,7 @@ signed_integer ResetStorageFileMemoryMapping()
             // Обновляем текущий размер файла в соответствии с реальным (чтобы при закрытии файла сделать его размер минимальным).
             storageFileSizeInBytes = lastFileSizeInBytes;
 
-            DebugInfo("Memory mapping of storage file is reset.");
+            DEBUG("Memory mapping of storage file is reset.");
 
             return SUCCESS_RESULT;
         }
@@ -522,7 +576,7 @@ signed_integer CloseStorageFile()
     {
         if (succeeded(EnsureStorageFileUnmapped()))
         {
-            DebugInfo("Closing storage file...");
+            DEBUG("Closing storage file...");
 
             // Перед закрытием файла обновляем его размер файла (это гарантирует его минимальный размер).
             ResizeStorageFile();
@@ -530,24 +584,26 @@ signed_integer CloseStorageFile()
 #if defined(WINDOWS)
             if (storageFileHandle == INVALID_HANDLE_VALUE) // т.к. например STDIN_FILENO == 0 - для stdin (под Linux)
                 // Убран принудительный выход, так как даже в случае неправильного дескриптора, его можно попытаться закрыть
-                DebugInfo("Storage file is not open or already closed. Let's try to close it anyway.");
+                DEBUG("Storage file is not open or already closed. Let's try to close it anyway.");
 
             CloseHandle(storageFileHandle);
 #elif defined(UNIX)
             if (storageFileHandle == -1)
-                return Error("Storage file is not open or already closed.");
+            {
+                ERROR("Storage file is not open or already closed.");
+                return ERROR_RESULT;
 
+            }
             close(storageFileHandle);
 #endif
 
             ResetStorageFile();
 
-            DebugInfo("Storage file closed.");
+            DEBUG("Storage file closed.");
 
             return SUCCESS_RESULT;
         }
     }
-
     return ERROR_RESULT;
 }
 

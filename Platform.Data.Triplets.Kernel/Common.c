@@ -1,31 +1,22 @@
 #include "Common.h"
 
-signed_integer Error(char* message)
-{
-    #ifdef DEBUG
-        printf("%s\n\n", message);
-        return ERROR_RESULT;
-    #else
-        #define Error(message) (ERROR_RESULT)
-    #endif
-}
+#ifdef DEBUG    
+    #define ERROR(message)  printf("%s\n\n", message);
+#else
+    #define ERROR(message)
+#endif
 
-signed_integer ErrorWithCode(char* message, signed_integer errorCode)
-{
-    #ifdef DEBUG
-        printf("%s Error code: %" PRId64 ".\n\n", message, errorCode);
-        return SUCCESS_RESULT == errorCode ? ERROR_RESULT : errorCode;
-    #else
-        #define ErrorWithCode(message, errorCode) (ERROR_RESULT)
-    #endif
-}
+#ifdef DEBUG
+    #define ERROR_WITH_CODE(message, errorCode)  printf("%s Error code: %" PRId64 ".\n\n", message, errorCode);
+#else
+    #define ERROR_WITH_CODE(message, errorCode);
+#endif
 
-void DebugInfo(char* message)
-{
-    #ifdef DEBUG
-        printf("%s\n", message);
-    #else
-        ;
-    #endif
-}
+#ifdef DEBUG
+    #define DEBUG(message) printf("%s\n", message)
+#else
+    #define DEBUG(message)
+#endif
+
+
 

@@ -58,10 +58,10 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define ERROR_RESULT 0
 #define failed(x) SUCCESS_RESULT != (x)
 
-signed_integer Error(char* message);
+void ERROR(char* message);
 
-signed_integer ErrorWithCode(char* message, signed_integer errorCode);
+void ERROR_WITH_CODE(char* message, signed_integer errorCode);
 
-void DebugInfo(char* message);
+void DEBUG(char* message);
 
 #endif
