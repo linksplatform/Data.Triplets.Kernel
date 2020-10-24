@@ -298,7 +298,8 @@ signed_integer ResizeStorageFile()
 
             distanceToMoveFilePointer.QuadPart = storageFileSizeInBytes - currentFilePointer.QuadPart;
 
-            if (!SetFilePointerEx(storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END)){
+            if (!SetFilePointerEx(storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END))
+            {
                 ERROR_MESSAGE_WITH_CODE("Failed to set file pointer.", GetLastError());
                 return ERROR_RESULT;
             }
@@ -592,7 +593,6 @@ signed_integer CloseStorageFile()
             {
                 ERROR_MESSAGE("Storage file is not open or already closed.");
                 return ERROR_RESULT;
-
             }
             close(storageFileHandle);
 #endif
