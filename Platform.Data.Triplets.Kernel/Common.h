@@ -57,7 +57,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define succeeded(x) (SUCCESS_RESULT == (x))
 #define ERROR_RESULT 0
 #define failed(x) (SUCCESS_RESULT != (x))
-#endif
+
 
 #ifdef DEBUG    
     #define ERROR_MESSAGE(message)  fprintf(stderr, "%s\n\n", message);
@@ -76,4 +76,5 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
     #define DEBUG_MESSAGE(message) fprintf(stdout, "%s\n", message)
 #else
     #define DEBUG_MESSAGE(message)
+#endif
 #endif
