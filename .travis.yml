@@ -41,7 +41,7 @@ matrix:
       script:
        - cd Platform.Data.Triplets.Kernel
        - mingw32-make
-       - ./test
+       - .\test.exe
        - cd ..
       after_success:
        - bash ./publish-binaries.sh
