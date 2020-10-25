@@ -5,5 +5,5 @@ Platform.Data.Triplets.Kernel	: Link.h Link.c
 	${CC} ${OPTS} ${DEFS} -c -o Timestamp.o Timestamp.c
 	${CC} ${OPTS} ${DEFS} -c -o Link.o Link.c
 	${CC} ${OPTS} ${DEFS} -c -o PersistentMemoryManager.o PersistentMemoryManager.c
-	${CC} -shared -o Platform.Data.Triplets.Kernel Link.o PersistentMemoryManager.o Common.o Timestamp.o
+	${CC} -shared -o Platform.Data.Triplets.Kernel Link.o PersistentMemoryManager.o  Timestamp.o
 	${CC} ${OPTS} -o test test.c Platform.Data.Triplets.Kernel
