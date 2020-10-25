@@ -583,7 +583,8 @@ signed_integer CloseStorageFile()
             ResizeStorageFile();
 
 #if defined(WINDOWS)
-            if (storageFileHandle == INVALID_HANDLE_VALUE){
+            if (storageFileHandle == INVALID_HANDLE_VALUE)
+            {
                 // т.к. например STDIN_FILENO == 0 - для stdin (под Linux)
                 // Убран принудительный выход, так как даже в случае неправильного дескриптора, его можно попытаться закрыть
                 DEBUG_MESSAGE("Storage file is not open or already closed. Let's try to close it anyway.");
