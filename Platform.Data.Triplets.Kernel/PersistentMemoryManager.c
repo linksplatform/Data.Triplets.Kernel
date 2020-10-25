@@ -246,7 +246,7 @@ signed_integer OpenStorageFile(char* filename)
     // см. MSDN "GetFileSize function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa364955%28v=vs.85%29.aspx
     // не знаю, как поправить здесь:
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
-    *((LPDWORD)&storageFileSizeInBytes) = GetFileSize(storageFileHandle, (LPDWORD)&storageFileSizeInBytes + 1);
+    storageFileSizeInBytes = (int64_t)GetFileSize(storageFileHandle, (LPDWORD)&storageFileSizeInBytes + 1);
     if (storageFileSizeInBytes == INVALID_FILE_SIZE)
     {
         ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError());
@@ -583,9 +583,11 @@ signed_integer CloseStorageFile()
             ResizeStorageFile();
 
 #if defined(WINDOWS)
-            if (storageFileHandle == INVALID_HANDLE_VALUE) // т.к. например STDIN_FILENO == 0 - для stdin (под Linux)
+            if (storageFileHandle == INVALID_HANDLE_VALUE){
+                // т.к. например STDIN_FILENO == 0 - для stdin (под Linux)
                 // Убран принудительный выход, так как даже в случае неправильного дескриптора, его можно попытаться закрыть
                 DEBUG_MESSAGE("Storage file is not open or already closed. Let's try to close it anyway.");
+            } 
 
             CloseHandle(storageFileHandle);
 #elif defined(UNIX)
