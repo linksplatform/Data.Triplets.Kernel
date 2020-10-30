@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: ls
         run: ls
-      - name: cd Platform.Data.Triplets.Kernel/
-        run: cd Platform.Data.Triplets.Kernel/
+      - name: cd "Platform.Data.Triplets.Kernel"
+        run: cd "Platform.Data.Triplets.Kernel"
       - name: ls
         run: ls
       - name: make
