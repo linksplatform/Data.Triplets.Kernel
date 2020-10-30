@@ -8,24 +8,17 @@ on:
 
 jobs:
   buildLinux:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Build and test
         run: |
           cd Platform.Data.Triplets.Kernel/
-          ls
           make
-          ls
-          ./test 
-
-
+          ./run.sh 
+      
   buildWindow:
-
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Build and test
@@ -35,11 +28,8 @@ jobs:
           mingw32-make
           ./test 
 
-
   buildMacOs:
-
     runs-on: macos-latest 
-
     steps:
       - uses: actions/checkout@v2
       - name: Build and test
@@ -47,6 +37,6 @@ jobs:
           cd Platform.Data.Triplets.Kernel/
           ls
           make
-          ./test 
+          ./run.sh
 
 
