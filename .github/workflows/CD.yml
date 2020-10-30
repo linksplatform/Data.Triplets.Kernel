@@ -20,7 +20,4 @@ jobs:
           cd Platform.Data.Triplets.Kernel/
           ls
           make
-          ./test |
-        
-      - name: cd
-        run: cd
+          ./test 
