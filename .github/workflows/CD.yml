@@ -13,11 +13,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: ls
-        run: ls
       - name: Cd in folder, show ls and make
         run: |
           cd Platform.Data.Triplets.Kernel/
           ls
           make
           ./test 
+
+
+build:
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cd in folder, show ls and make
+        run: |
+          cd Platform.Data.Triplets.Kernel/
+          ls
+          mingw32-make
+          ./test 
+
+
+
+build:
+
+    runs-on: macos-latest 
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cd in folder, show ls and make
+        run: |
+          cd Platform.Data.Triplets.Kernel/
+          ls
+          make
+          ./test 
+
+
