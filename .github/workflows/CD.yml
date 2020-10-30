@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: cd Platform.Data.Triplets.Kernel/
-      - run:  cd Platform.Data.Triplets.Kernel/
+        run:  cd Platform.Data.Triplets.Kernel/
       - name: make
         run: make
       - name: ./test
