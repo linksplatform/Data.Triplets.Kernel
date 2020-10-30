@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - uses: actions/checkout@v2
+      - name: cd Platform.Data.Triplets.Kernel/
+      - run:  cd Platform.Data.Triplets.Kernel/
+      - name: make
+        run: make
+      - name: ./test
+        run: ./test
+      - name: cd ..
+        run: cd ..
