@@ -13,6 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: ls
       - name: cd Platform.Data.Triplets.Kernel
         run:  cd Platform.Data.Triplets.Kernel
       - name: ls
