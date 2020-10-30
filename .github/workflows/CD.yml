@@ -37,15 +37,20 @@ jobs:
           ./test 
       - name: Publish
         run: |
-          export TARGET_PLATFORM="win-x64"
-          export TARGET_PLATFORM_PREFIX=""
-          export TARGET_PLATFORM_SUFFIX=".dll"
-          export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
-          export SOURCE_BRANCH="master"
+          # export TARGET_PLATFORM="win-x64"
+          # export TARGET_PLATFORM_PREFIX=""
+          # export TARGET_PLATFORM_SUFFIX=".dll"
+          # export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+          # export SOURCE_BRANCH="master"
+          SET TARGET_PLATFORM="win-x64"
+          SET TARGET_PLATFORM_PREFIX=""
+          SET TARGET_PLATFORM_SUFFIX=".dll"
+          SET TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+          SET SOURCE_BRANCH="master"
           bash ./publish-binaries.sh
 
   buildMacOs:
-    runs-on: macos-latest 
+    runs-on: macos-latest   
     steps:
       - uses: actions/checkout@v2
       - name: Build and test
