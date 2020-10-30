@@ -16,6 +16,12 @@ jobs:
           cd Platform.Data.Triplets.Kernel/
           make
           ./run.sh 
+        run: |
+          export TARGET_PLATFORM="linux-x64"
+          export TARGET_PLATFORM_PREFIX="lib"
+          export TARGET_PLATFORM_SUFFIX=".so"
+          export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+          export SOURCE_BRANCH="master"
       - name: Publish
         run: bash ./publish-binaries.sh
       
@@ -29,6 +35,12 @@ jobs:
           ls
           mingw32-make
           ./test 
+        run: |
+          export TARGET_PLATFORM="win-x64"
+          export TARGET_PLATFORM_PREFIX=""
+          export TARGET_PLATFORM_SUFFIX=".dll"
+          export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+          export SOURCE_BRANCH="master"
       - name: Publish
         run: bash ./publish-binaries.sh
 
@@ -42,6 +54,12 @@ jobs:
           ls
           make
           ./run.sh
+        run: |
+          export TARGET_PLATFORM="osx-x64"
+          export TARGET_PLATFORM_PREFIX="lib"
+          export TARGET_PLATFORM_SUFFIX=".dylib"
+          export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
+          export SOURCE_BRANCH="master"
       - name: Publish
         run: bash ./publish-binaries.sh
 
