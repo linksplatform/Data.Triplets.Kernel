@@ -47,6 +47,7 @@ jobs:
           export TARGET_PLATFORM_SUFFIX=".dll"
           export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
           export SOURCE_BRANCH="master"
+          ./publish-binaries.sh
         shell: bash
 
   buildMacOs:
