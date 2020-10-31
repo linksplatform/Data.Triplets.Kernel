@@ -41,5 +41,5 @@ git add --all
 git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}"
 
 # Now that we're all set up, we can push.
-git push "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git" $TARGET_BRANCH
+git push "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git" $TARGET_BRANCH || true 
 cd ..
