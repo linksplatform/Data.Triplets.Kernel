@@ -243,16 +243,14 @@ signed_integer OpenStorageFile(char* filename)
         ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError());
         return ERROR_RESULT;
     }
-    // см. MSDN "GetFileSize function", http://msdn.microsoft.com/en-us/library/windows/desktop/aa364955%28v=vs.85%29.aspx
-    // не знаю, как поправить здесь:
-    // warning: dereferencing type-punned pointer will break strict-aliasing rules
-    storageFileSizeInBytes = (int64_t)GetFileSize(storageFileHandle, (LPDWORD)&storageFileSizeInBytes + 1);
-    if (storageFileSizeInBytes == INVALID_FILE_SIZE)
+   
+    LARGE_INTEGER fileSize;
+    if(!GetFileSizeEx(storageFileHandle, &fileSize))
     {
         ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError());
         return ERROR_RESULT;
     }
-
+    storageFileSizeInBytes = (int64_t)fileSize.QuadPart;
 #elif defined(UNIX)
     storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (storageFileHandle == -1)
