@@ -15,7 +15,7 @@ REPOSITORY="github.com/linksplatform/${TRAVIS_REPO_NAME}"
 # Clone the existing gh-pages for this repo into out/
 # Create a new empty branch if gh-pages doesn't exist yet (should only happen on first deply)
 git clone https://$REPOSITORY out
-cd out
+cd out || exit
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
@@ -33,7 +33,7 @@ cd out
 git config user.name "$COMMIT_USER_NAME"
 git config user.email "$COMMIT_USER_EMAIL"
 git remote rm origin
-git remote add origin https://$COMMIT_USER_NAME:$GITHUB_TOKEN@$REPOSITORY.git
+git remote add origin "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git"
 
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
@@ -41,4 +41,5 @@ git add --all
 git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}"
 
 # Now that we're all set up, we can push.
-git push https://$COMMIT_USER_NAME:$GITHUB_TOKEN@$REPOSITORY.git $TARGET_BRANCH
+git push "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git" $TARGET_BRANCH
+cd ..
