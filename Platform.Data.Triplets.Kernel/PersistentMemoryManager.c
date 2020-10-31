@@ -243,7 +243,7 @@ signed_integer OpenStorageFile(char* filename)
         ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError());
         return ERROR_RESULT;
     }
-   
+    // см. MSDN "GetFileSizeEx function", https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfilesizeex
     LARGE_INTEGER fileSize;
     if(!GetFileSizeEx(storageFileHandle, &fileSize))
     {
