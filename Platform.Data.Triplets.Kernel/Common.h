@@ -56,12 +56,25 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define SUCCESS_RESULT 1
 #define succeeded(x) (SUCCESS_RESULT == (x))
 #define ERROR_RESULT 0
-#define failed(x) SUCCESS_RESULT != (x)
+#define failed(x) (SUCCESS_RESULT != (x))
 
-signed_integer Error(char* message);
 
-signed_integer ErrorWithCode(char* message, signed_integer errorCode);
+#ifdef DEBUG    
+    #define ERROR_MESSAGE(message)  fprintf(stderr, "%s\n\n", message);
+#else
+    #define ERROR_MESSAGE(message)
+#endif
 
-void DebugInfo(char* message);
 
+#ifdef DEBUG
+    #define ERROR_MESSAGE_WITH_CODE(message, errorCode)  fprintf(stderr, "%s Error code: %" PRId64 ".\n\n", message, errorCode);
+#else
+    #define ERROR_MESSAGE_WITH_CODE(message, errorCode)
+#endif
+
+#ifdef DEBUG
+    #define DEBUG_MESSAGE(message) fprintf(stdout, "%s\n", message)
+#else
+    #define DEBUG_MESSAGE(message)
+#endif
 #endif
