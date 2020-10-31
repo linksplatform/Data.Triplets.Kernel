@@ -9,7 +9,7 @@ TARGET_BRANCH="binaries"
 
 SHA=$(git rev-parse --verify HEAD)
 COMMIT_USER_NAME="linksplatform"
-COMMIT_USER_EMAIL="konard@yandex.ru"
+COMMIT_USER_EMAIL="linksplatformtechnologies@gmail.com"
 REPOSITORY="github.com/linksplatform/${TRAVIS_REPO_NAME}"
 
 # Clone the existing gh-pages for this repo into out/
