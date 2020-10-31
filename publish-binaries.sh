@@ -38,7 +38,7 @@ git remote add origin "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git"
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
 git add --all
-git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}"
+git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}" || exit 0
 
 # Now that we're all set up, we can push.
 git push "https://linksplatform:$GITHUB_TOKEN@$REPOSITORY.git" $TARGET_BRANCH || true 
