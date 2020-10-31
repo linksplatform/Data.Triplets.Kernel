@@ -8,7 +8,7 @@ set -e # Exit with nonzero exit code if anything fails
 TARGET_BRANCH="binaries"
 
 SHA=$(git rev-parse --verify HEAD)
-COMMIT_USER_NAME="linksplatform-docs"
+COMMIT_USER_NAME="linksplatform"
 COMMIT_USER_EMAIL="konard@yandex.ru"
 REPOSITORY="github.com/linksplatform/${TRAVIS_REPO_NAME}"
 
@@ -33,7 +33,7 @@ cd out
 git config user.name "$COMMIT_USER_NAME"
 git config user.email "$COMMIT_USER_EMAIL"
 git remote rm origin
-git remote add origin https://$COMMIT_USER_NAME:$TOKEN@$REPOSITORY.git
+git remote add origin https://$COMMIT_USER_NAME:$GITHUB_TOKEN@$REPOSITORY.git
 
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
@@ -41,4 +41,4 @@ git add --all
 git commit -m "Deploy to ${TARGET_BRANCH} branch for: ${SHA}"
 
 # Now that we're all set up, we can push.
-git push https://$COMMIT_USER_NAME:$TOKEN@$REPOSITORY.git $TARGET_BRANCH
+git push https://$COMMIT_USER_NAME:$GITHUB_TOKEN@$REPOSITORY.git $TARGET_BRANCH
