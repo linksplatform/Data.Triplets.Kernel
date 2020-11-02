@@ -36,7 +36,6 @@ jobs:
       - name: Build and test
         run: |
           cd Platform.Data.Triplets.Kernel/
-          ls
           mingw32-make
           ./test 
       - name: Publish
@@ -57,7 +56,6 @@ jobs:
       - name: Build and test
         run: |
           cd Platform.Data.Triplets.Kernel/
-          ls
           make
           ./run.sh       
       - name: Publish
