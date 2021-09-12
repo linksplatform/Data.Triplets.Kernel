@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 // Size for basic types
 // Размер для основных типов
@@ -37,7 +38,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 //#define public_calling_convention __stdcall
 #define public_calling_convention
 #else
-#define PREFIX_DLL __declspec(dllimport)
+#define PREFIX_DLL // __declspec(dllimport)
 #define public_calling_convention 
 #endif
 #elif defined(UNIX)
@@ -49,30 +50,30 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #define DEBUG
 #endif
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #include <stdio.h>
 #endif
 
-#define SUCCESS_RESULT 1
+#define SUCCESS_RESULT 0
 #define succeeded(x) (SUCCESS_RESULT == (x))
-#define ERROR_RESULT 0
+#define ERROR_RESULT 1
 #define failed(x) (SUCCESS_RESULT != (x))
 
 
-#ifdef DEBUG    
+#ifndef NDEBUG
     #define ERROR_MESSAGE(message)  fprintf(stderr, "%s\n\n", message);
 #else
     #define ERROR_MESSAGE(message)
 #endif
 
 
-#ifdef DEBUG
+#ifndef NDEBUG
     #define ERROR_MESSAGE_WITH_CODE(message, errorCode)  fprintf(stderr, "%s Error code: %" PRId64 ".\n\n", message, errorCode);
 #else
     #define ERROR_MESSAGE_WITH_CODE(message, errorCode)
 #endif
 
-#ifdef DEBUG
+#ifndef NDEBUG
     #define DEBUG_MESSAGE(message) fprintf(stdout, "%s\n", message)
 #else
     #define DEBUG_MESSAGE(message)

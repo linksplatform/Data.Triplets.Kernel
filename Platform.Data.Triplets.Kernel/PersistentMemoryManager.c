@@ -4,6 +4,8 @@
 
 #if defined(WINDOWS)
 #include <windows.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #elif defined(UNIX)
 // for 64-bit files
 #define _XOPEN_SOURCE 700
@@ -55,7 +57,7 @@ Link*               pointerToUnusedMarker;              // Инициализи�
 
 void PrintLinksDatabaseSize()
 {
-#ifdef DEBUG
+#ifndef NDEBUG
     printf("Links database size: %" PRIu64 " links, %" PRIu64 " bytes for links. Service block size (bytes): %" PRIu64 ".\n",
         (uint64_t)(*pointerToLinksSize),
         (uint64_t)(*pointerToLinksSize * sizeof(Link)),
@@ -217,7 +219,7 @@ void InitPersistentMemoryManager()
 
     storageFileMinSizeInBytes = serviceBlockSizeInBytes + baseBlockSizeInBytes;
 
-#ifdef DEBUG
+#ifndef NDEBUG
     printf("storageFileMinSizeInBytes = %" PRIu64 "\n", (uint64_t)storageFileMinSizeInBytes);
 #endif
 
@@ -227,7 +229,7 @@ void InitPersistentMemoryManager()
     return;
 }
 
-signed_integer OpenStorageFile(char* filename)
+signed_integer OpenStorageFile(const char* filename)
 {
     if (failed(EnsureStorageFileClosed()))
         return ERROR_RESULT;
@@ -241,35 +243,35 @@ signed_integer OpenStorageFile(char* filename)
     {
         // см. MSDN "GetLastError function", http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360%28v=vs.85%29.aspx
         ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError());
-        return ERROR_RESULT;
+        return GetLastError();
     }
     // см. MSDN "GetFileSizeEx function", https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfilesizeex
     LARGE_INTEGER fileSize;
     if(!GetFileSizeEx(storageFileHandle, &fileSize))
     {
         ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError());
-        return ERROR_RESULT;
+        return GetLastError();
     }
     storageFileSizeInBytes = (int64_t)fileSize.QuadPart;
-#elif defined(UNIX)
+#elif  defined(UNIX)
     storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (storageFileHandle == -1)
     {
         ERROR_MESSAGE_WITH_CODE  ("Failed to open file.", errno);
-        return ERROR_RESULT;
+        return errno;
     }
 
     struct stat statbuf;
     if (fstat(storageFileHandle, &statbuf) != 0)
     {
         ERROR_MESSAGE_WITH_CODE("Failed to get file size.", errno);
-        return ERROR_RESULT;
+        return errno;
     }
 
     storageFileSizeInBytes = statbuf.st_size; // ? uint64_t = off_t
 #endif
 
-#ifdef DEBUG
+#ifndef NDEBUG
     printf("storageFileSizeInBytes = %" PRIu64 "\n", (uint64_t)storageFileSizeInBytes);
 
     printf("File %s opened.\n\n", filename);
@@ -415,7 +417,7 @@ signed_integer SetStorageFileMemoryMapping()
     pointerToLinks = (Link*)pointers[6];
     pointerToUnusedMarker = pointerToLinks;
 
-#ifdef DEBUG
+#ifndef NDEBUG
     printf("DataSeal            = %" PRIu64 "\n", *pointerToDataSeal);
     printf("LinkIndexSize       = %" PRIu64 "\n", *pointerToLinkIndexSize);
     printf("MappingLinksMaxSize = %" PRIu64 "\n", *pointerToMappingLinksMaxSize);
@@ -608,7 +610,7 @@ signed_integer CloseStorageFile()
     return ERROR_RESULT;
 }
 
-signed_integer OpenLinks(char* filename)
+signed_integer OpenLinks(const char* filename)
 {
     InitPersistentMemoryManager();
     signed_integer result = OpenStorageFile(filename);
@@ -712,4 +714,9 @@ void SetMappedLink(signed_integer mappingIndex, link_index linkIndex)
 {
     if (mappingIndex >= 0 && mappingIndex < (signed_integer)*pointerToMappingLinksMaxSize)
         pointerToPointerToMappingLinks[mappingIndex] = linkIndex;
+}
+
+
+int nil() {
+    return 0;
 }
