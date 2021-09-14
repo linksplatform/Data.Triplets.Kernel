@@ -64,7 +64,7 @@ void PrintLinksDatabaseSize(RawDB* db)
 #ifndef NDEBUG
     printf("Links database size: %" PRIu64 " links, %" PRIu64 " bytes for links. Service block size (RawDB* db, bytes): %" PRIu64 ".\n",
         (uint64_t)(*db->pointerToLinksSize),
-        (uint64_t)(*db->pointerToLinksSize * sizeof(RawDB* db, Link)),
+        (uint64_t)(*db->pointerToLinksSize * sizeof(Link)),
         (uint64_t)db->serviceBlockSizeInBytes);
 #endif
 }
@@ -128,7 +128,7 @@ unsigned_integer GetCurrentSystemPageSize()
 
 #elif defined(UNIX)
 
-    long pageSize = sysconf(RawDB* db, _SC_PAGESIZE);
+    long pageSize = sysconf(_SC_PAGESIZE);
     return pageSize;
 
 #endif
@@ -215,7 +215,7 @@ signed_integer EnsureStorageFileUnmapped(RawDB* db)
 
 void InitPersistentMemoryManager(RawDB* db)
 {
-    db->currentMemoryPageSizeInBytes = GetCurrentSystemPageSize(db);
+    db->currentMemoryPageSizeInBytes = GetCurrentSystemPageSize();
     db->serviceBlockSizeInBytes = db->currentMemoryPageSizeInBytes * 2;
 
     db->baseLinksSizeInBytes = db->serviceBlockSizeInBytes - sizeof(uint64_t) * 3 - sizeof(link_index) * 2;
@@ -229,8 +229,6 @@ void InitPersistentMemoryManager(RawDB* db)
 
     ResetStorageFile(db);
     ResetStorageFileMapping(db);
-
-    return;
 }
 
 signed_integer OpenStorageFile(RawDB* db, const char* filename)
@@ -246,14 +244,14 @@ signed_integer OpenStorageFile(RawDB* db, const char* filename)
     if (db->storageFileHandle == INVALID_HANDLE_VALUE)
     {
         // см. MSDN "GetLastError function", http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360%28v=vs.85%29.aspx
-        ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError(RawDB* db, ));
+        ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError());
         return GetLastError();
     }
     // см. MSDN "GetFileSizeEx function", https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfilesizeex
     LARGE_INTEGER fileSize;
     if(!GetFileSizeEx(db->storageFileHandle, &fileSize))
     {
-        ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError(RawDB* db, ));
+        ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError());
         return GetLastError();
     }
     db->storageFileSizeInBytes = (int64_t)fileSize.QuadPart;
@@ -296,7 +294,7 @@ signed_integer ResizeStorageFile(RawDB* db)
             LARGE_INTEGER currentFilePointer = { 0 };
             if (!SetFilePointerEx(db->storageFileHandle, distanceToMoveFilePointer, &currentFilePointer, FILE_CURRENT))
             {
-                ERROR_MESSAGE_WITH_CODE("Failed to get current file pointer.", GetLastError(RawDB* db, ));
+                ERROR_MESSAGE_WITH_CODE("Failed to get current file pointer.", GetLastError());
                 return ERROR_RESULT;
             }
 
@@ -304,12 +302,12 @@ signed_integer ResizeStorageFile(RawDB* db)
 
             if (!SetFilePointerEx(db->storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END))
             {
-                ERROR_MESSAGE_WITH_CODE("Failed to set file pointer.", GetLastError(RawDB* db, ));
+                ERROR_MESSAGE_WITH_CODE("Failed to set file pointer.", GetLastError());
                 return ERROR_RESULT;
             }
             if (!SetEndOfFile(db->storageFileHandle))
             {
-                ERROR_MESSAGE_WITH_CODE("Failed to set end of file.", GetLastError(RawDB* db, ));
+                ERROR_MESSAGE_WITH_CODE("Failed to set end of file.", GetLastError());
                 return ERROR_RESULT;
             }
 #elif defined(UNIX)
@@ -352,7 +350,7 @@ signed_integer SetStorageFileMemoryMapping(RawDB* db)
     db->storageFileMappingHandle = CreateFileMapping(db->storageFileHandle, NULL, PAGE_READWRITE, 0, (DWORD)db->storageFileSizeInBytes, NULL);
     if (db->storageFileMappingHandle == INVALID_HANDLE_VALUE)
     {
-        ERROR_MESSAGE_WITH_CODE("Mapping creation failed.", GetLastError(RawDB* db, ));
+        ERROR_MESSAGE_WITH_CODE("Mapping creation failed.", GetLastError());
         return ERROR_RESULT;
     }
 
@@ -363,7 +361,7 @@ signed_integer SetStorageFileMemoryMapping(RawDB* db)
     db->pointerToMappedRegion = MapViewOfFileEx(db->storageFileMappingHandle, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0, db->pointerToMappedRegion);
     if (db->pointerToMappedRegion == NULL)
     {
-        ERROR_MESSAGE_WITH_CODE("Failed to set map view of file.", GetLastError(RawDB* db, ));
+        ERROR_MESSAGE_WITH_CODE("Failed to set map view of file.", GetLastError());
         return ERROR_RESULT;
     }
 
@@ -387,7 +385,7 @@ signed_integer SetStorageFileMemoryMapping(RawDB* db)
     //   | LinksActualSize      64bit | | 2 * (RawDB* db, System Page Size)
     //   |              *             | |
     //   |   Base       |    Link     | |
-    //   |  (RawDB* db, Mapped)    |  indicies   | |
+    //   |  (Mapped)    |  indicies   | |
     //   |              *             | *
     //   | Links Block                | *
     //   |              *             | | Min after save: 1 * (RawDB* db, Link Size) // Needed for null link (RawDB* db, unused link marker)
@@ -427,6 +425,7 @@ signed_integer SetStorageFileMemoryMapping(RawDB* db)
     printf("MappingLinksMaxSize = %" PRIu64 "\n", *db->pointerToMappingLinksMaxSize);
     printf("LinksMaxSize        = %" PRIu64 "\n", (uint64_t)*db->pointerToLinksMaxSize);
     printf("LinksSize           = %" PRIu64 "\n", (uint64_t)*db->pointerToLinksSize);
+    //printf("Un size           = %" PRIu64 "\n", (uint64_t)db->pointerToUnusedMarker->LinkerIndex);
 #endif
 
     uint64_t expectedMappingLinksMaxSize = db->baseLinksSizeInBytes / sizeof(link_index);
@@ -625,10 +624,10 @@ signed_integer OpenLinks(RawDB* db, const char* filename)
 
 signed_integer CloseLinks(RawDB* db)
 {
-    signed_integer result = ResetStorageFileMemoryMapping(db);
-    if (!succeeded(result))
-        return result;
-    return CloseStorageFile(db);
+    //signed_integer result = ResetStorageFileMemoryMapping(db);
+    //if (!succeeded(result))
+    //    return result;
+    //return CloseStorageFile(db);
 }
 
 link_index AllocateFromUnusedLinks(RawDB* db)
@@ -648,11 +647,12 @@ link_index AllocateFromFreeLinks(RawDB* db)
 
 link_index AllocateLink(RawDB* db)
 {
-    if (db->pointerToUnusedMarker->ByLinkerRootIndex != null)
-        return AllocateFromUnusedLinks(db);
-    else
-        return AllocateFromFreeLinks(db);
-    return null;
+    if (db->pointerToUnusedMarker != null) {
+        if (db->pointerToLinks->ByLinkerRootIndex != null) {
+            return AllocateFromUnusedLinks(db);
+        }
+    }
+    return AllocateFromFreeLinks(db);
 }
 
 void FreeLink(RawDB* db, link_index linkIndex)
@@ -708,7 +708,7 @@ signed_integer WalkThroughLinks(RawDB* db, stoppable_visitor stoppableVisitor)
 
 link_index GetMappedLink(RawDB* db, signed_integer mappingIndex)
 {
-    if (mappingIndex >= 0 && mappingIndex < *db->pointerToMappingLinksMaxSize)
+    if (mappingIndex >= 0 && mappingIndex < (signed_integer)*db->pointerToMappingLinksMaxSize)
         return db->pointerToPointerToMappingLinks[mappingIndex];
     else
         return null;
@@ -716,7 +716,7 @@ link_index GetMappedLink(RawDB* db, signed_integer mappingIndex)
 
 void SetMappedLink(RawDB* db, signed_integer mappingIndex, link_index linkIndex)
 {
-    if (mappingIndex >= 0 && mappingIndex < db->pointerToMappingLinksMaxSize)
+    if (mappingIndex >= 0 && mappingIndex < (signed_integer)*db->pointerToMappingLinksMaxSize)
         db->pointerToPointerToMappingLinks[mappingIndex] = linkIndex;
 }
 

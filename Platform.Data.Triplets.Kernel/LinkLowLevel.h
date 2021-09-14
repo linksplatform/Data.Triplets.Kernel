@@ -245,8 +245,8 @@
 #define BeginWalkThroughtTreeOfReferersByTarget(element, root) BeginWalkThroughtReferersTree(Target, element, root)
 #define EndWalkThroughtTreeOfReferersByTarget(element) EndWalkThroughtReferersTree(Target, element)
 
-#define SubscribeToTreeOfReferersBy(that, linkIndex, newValue) Concat3(By, that, TreeInsert)(&_GetFirstRefererBy(that, of(newValue)), linkIndex)
-#define UnSubscribeFromTreeOfReferersBy(that, linkIndex, newValue) Concat(UnsafeDetachFromTreeOfReferersBy, that)(&_GetFirstRefererBy(that, of(newValue)), linkIndex)
+#define SubscribeToTreeOfReferersBy(that, linkIndex, newValue) Concat3(By, that, TreeInsert)(db, &_GetFirstRefererBy(that, of(newValue)), linkIndex)
+#define UnSubscribeFromTreeOfReferersBy(that, linkIndex, newValue) Concat(UnsafeDetachFromTreeOfReferersBy, that)(db, &_GetFirstRefererBy(that, of(newValue)), linkIndex)
 
 #define SubscribeAsRefererToSource(linkIndex, newValue) SubscribeToTreeOfReferersBy(Source, linkIndex, newValue)
 #define SubscribeAsRefererToLinker(linkIndex, newValue) SubscribeToListOfReferersBy(Linker, linkIndex, newValue)
@@ -274,7 +274,7 @@ link_index SearchRefererOfSource(link_index linkIndex, link_index refererTargetI
 }
 
 #define DefineSearchInListOfReferersByLinkerMethod()                                                                 \
-link_index SearchRefererOfLinker(link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
+link_index SearchRefererOfLinker(RawDB* db, link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
 {                                                                                                                    \
     BeginWalkThroughReferersByTarget(referer, in(linkIndex))                                                         \
         if (__GetSourceIndex(referer) == refererSourceIndex && __GetTargetIndex(referer) == refererTargetIndex)      \

@@ -2,7 +2,7 @@
 #define __LINKS_SIZE_BALANCED_TREE_H__
 
 #define DefineTreeLeftRotateMethod(methodName, elementType, GetLeftNode, SetLeftNode, GetRightNode, SetRightNode, GetNodeSize, SetNodeSize)                                     \
-void methodName(elementType* rootIndex)                                                                                                                                         \
+void methodName(RawDB* db, elementType* rootIndex)                                                                                                                                         \
 {                                                                                                                                                                               \
     elementType rightNodeIndex = GetRightNode(*rootIndex);                                                                                                                      \
     if (rightNodeIndex == null) return;                                                                                                                                         \
@@ -14,7 +14,7 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeRightRotateMethod(methodName, elementType, GetLeftNode, SetLeftNode, GetRightNode, SetRightNode, GetNodeSize, SetNodeSize)                                    \
-void methodName(elementType* rootIndex)                                                                                                                                         \
+void methodName(RawDB* db, elementType* rootIndex)                                                                                                                                         \
 {                                                                                                                                                                               \
     elementType leftNodeIndex = GetLeftNode(*rootIndex);                                                                                                                        \
     if(leftNodeIndex == null) return;                                                                                                                                           \
@@ -26,11 +26,11 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeMaintainMethodsHeaders(LeftMaintain, RightMaintain, elementType) \
-    void LeftMaintain(elementType* rootIndex);                                     \
-    void RightMaintain(elementType* rootIndex);
+    void LeftMaintain(db, elementType* rootIndex);                                     \
+    void RightMaintain(db, elementType* rootIndex);
 
 #define DefineTreeLeftMaintainMethod(methodName, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)        \
-void methodName(elementType* rootIndex)                                                                                                              \
+void methodName(RawDB* db, elementType* rootIndex)                                                                                                              \
 {                                                                                                                                                    \
     if (*rootIndex)                                                                                                                                  \
     {                                                                                                                                                \
@@ -40,25 +40,25 @@ void methodName(elementType* rootIndex)                                         
             elementType rootRightNodeIndex = GetRightNode(*rootIndex);                                                                               \
             elementType rootLeftNodeLeftNodeIndex = GetLeftNode(rootLeftNodeIndex);                                                                  \
             if(rootLeftNodeLeftNodeIndex && (!rootRightNodeIndex || GetNodeSize(rootLeftNodeLeftNodeIndex) > GetNodeSize(rootRightNodeIndex)))       \
-                RightRotate(rootIndex);                                                                                                              \
+                RightRotate(db, rootIndex);                                                                                                              \
             else                                                                                                                                     \
             {                                                                                                                                        \
                 elementType rootLeftNodeRightNodeIndex = GetRightNode(rootLeftNodeIndex);                                                            \
                 if(rootLeftNodeRightNodeIndex && (!rootRightNodeIndex || GetNodeSize(rootLeftNodeRightNodeIndex) > GetNodeSize(rootRightNodeIndex))) \
-                    LeftRotate(&GetLeftNode(*rootIndex)), RightRotate(rootIndex);                                                                    \
+                    LeftRotate(db, &GetLeftNode(*rootIndex)), RightRotate(db, rootIndex);                                                                    \
                 else                                                                                                                                 \
                     return;                                                                                                                          \
             }                                                                                                                                        \
-            methodName(&GetLeftNode(*rootIndex));                                                                                                    \
-            RightMaintain(&GetRightNode(*rootIndex));                                                                                                \
-            methodName(rootIndex);                                                                                                                   \
-            RightMaintain(rootIndex);                                                                                                                \
+            methodName(db, &GetLeftNode(*rootIndex));                                                                                                    \
+            RightMaintain(db, &GetRightNode(*rootIndex));                                                                                                \
+            methodName(db, rootIndex);                                                                                                                   \
+            RightMaintain(db, rootIndex);                                                                                                                \
         }                                                                                                                                            \
     }                                                                                                                                                \
 }
 
 #define DefineTreeRightMaintainMethod(methodName, LeftMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)       \
-void methodName(elementType* rootIndex)                                                                                                             \
+void methodName(RawDB* db, elementType* rootIndex)                                                                                                             \
 {                                                                                                                                                   \
     if (*rootIndex)                                                                                                                                 \
     {                                                                                                                                               \
@@ -68,31 +68,31 @@ void methodName(elementType* rootIndex)                                         
             elementType rootLeftNodeIndex = GetLeftNode(*rootIndex);                                                                                \
             elementType rootRightNodeRightNodeIndex = GetRightNode(rootRightNodeIndex);                                                             \
             if (rootRightNodeRightNodeIndex && (!rootLeftNodeIndex || GetNodeSize(rootRightNodeRightNodeIndex) > GetNodeSize(rootLeftNodeIndex)))   \
-                LeftRotate(rootIndex);                                                                                                              \
+                LeftRotate(db, rootIndex);                                                                                                              \
             else                                                                                                                                    \
             {                                                                                                                                       \
                 elementType rootRightNodeLeftNodeIndex = GetLeftNode(rootRightNodeIndex);                                                           \
                 if (rootRightNodeLeftNodeIndex && (!rootLeftNodeIndex || GetNodeSize(rootRightNodeLeftNodeIndex) > GetNodeSize(rootLeftNodeIndex))) \
-                    RightRotate(&GetRightNode(*rootIndex)), LeftRotate(rootIndex);                                                                  \
+                    RightRotate(db, &GetRightNode(*rootIndex)), LeftRotate(db, rootIndex);                                                                  \
                 else                                                                                                                                \
                     return;                                                                                                                         \
             }                                                                                                                                       \
-            LeftMaintain(&GetLeftNode(*rootIndex));                                                                                                 \
-            methodName(&GetRightNode(*rootIndex));                                                                                                  \
-            LeftMaintain(rootIndex);                                                                                                                \
-            methodName(rootIndex);                                                                                                                  \
+            LeftMaintain(db, &GetLeftNode(*rootIndex));                                                                                                 \
+            methodName(db, &GetRightNode(*rootIndex));                                                                                                  \
+            LeftMaintain(db, rootIndex);                                                                                                                \
+            methodName(db, rootIndex);                                                                                                                  \
         }                                                                                                                                           \
     }                                                                                                                                               \
 }
 
 #define DefineTreeMaintainMethods(LeftMaintain, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize) \
-    void LeftMaintain(elementType* rootIndex);                                                                                               \
-    void RightMaintain(elementType* rootIndex);                                                                                              \
+    void LeftMaintain(RawDB* db, elementType* rootIndex);                                                                                               \
+    void RightMaintain(RawDB* db, elementType* rootIndex);                                                                                              \
     DefineTreeLeftMaintainMethod(LeftMaintain, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)  \
     DefineTreeRightMaintainMethod(RightMaintain, LeftMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)
 
 #define DefineTreeInsertMethod(methodName, elementType, LeftMaintain, RightMaintain, IsElementLessThanOtherElement, GetLeftNode, GetRightNode, GetNodeSize, SetNodeSize) \
-void methodName(elementType* rootIndex, elementType newNodeIndex)                                                                                                        \
+void methodName(RawDB* db, elementType* rootIndex, elementType newNodeIndex)                                                                                                        \
 {                                                                                                                                                                        \
     if (*rootIndex == null)                                                                                                                                              \
     {                                                                                                                                                                    \
@@ -105,19 +105,19 @@ void methodName(elementType* rootIndex, elementType newNodeIndex)               
                                                                                                                                                                          \
         if (IsElementLessThanOtherElement(newNodeIndex, *rootIndex))                                                                                                     \
         {                                                                                                                                                                \
-            methodName(&GetLeftNode(*rootIndex), newNodeIndex);                                                                                                          \
-             LeftMaintain(rootIndex);                                                                                                                                    \
+            methodName(db, &GetLeftNode(*rootIndex), newNodeIndex);                                                                                                          \
+             LeftMaintain(db, rootIndex);                                                                                                                                    \
         }                                                                                                                                                                \
         else                                                                                                                                                             \
         {                                                                                                                                                                \
-            methodName(&GetRightNode(*rootIndex), newNodeIndex);                                                                                                         \
-            RightMaintain(rootIndex);                                                                                                                                    \
+            methodName(db, &GetRightNode(*rootIndex), newNodeIndex);                                                                                                         \
+            RightMaintain(db, rootIndex);                                                                                                                                    \
         }                                                                                                                                                                \
     }                                                                                                                                                                    \
 }
 
 #define DefineUnsafeDetachFromTreeMethod(methodName, elementType, IsElementLessThanOtherElement, IsElementGreaterThanOtherElement, GetLeftNode, SetLeftNode, GetRightNode, SetRightNode, GetNodeSize, SetNodeSize) \
-void methodName(elementType* rootIndex, elementType nodeToDetach)                                                                                                                                                  \
+void methodName(RawDB* db, elementType* rootIndex, elementType nodeToDetach)                                                                                                                                                  \
 {                                                                                                                                                                                                                  \
     if (*rootIndex == null)                                                                                                                                                                                        \
         return;                                                                                                                                                                                                    \
@@ -143,7 +143,7 @@ void methodName(elementType* rootIndex, elementType nodeToDetach)               
             elementType minNode = GetRightNode(nodeToDetach);                                                                                                                                                      \
             while (GetLeftNode(minNode)) minNode = GetLeftNode(minNode); /* Передвигаемся до минимума */                                                                                                           \
                                                                                                                                                                                                                    \
-            methodName(&GetRightNode(nodeToDetach), minNode);                                                                                                                                                      \
+            methodName(db, &GetRightNode(nodeToDetach), minNode);                                                                                                                                                      \
                                                                                                                                                                                                                    \
             SetLeftNode(minNode, GetLeftNode(nodeToDetach));                                                                                                                                                       \
             if (GetRightNode(nodeToDetach))                                                                                                                                                                        \

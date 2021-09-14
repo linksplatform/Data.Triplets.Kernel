@@ -6,12 +6,15 @@
 #include "Common.h"
 #include "Link.h"
 
+typedef struct RawDB RawDB;
+
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
     void InitPersistentMemoryManager(RawDB* db);
-    
+
     signed_integer OpenStorageFile(RawDB* db, const char* filename);
     signed_integer CloseStorageFile(RawDB* db);
     signed_integer EnlargeStorageFile(RawDB* db);

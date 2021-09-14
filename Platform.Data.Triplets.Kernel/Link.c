@@ -8,57 +8,10 @@
 #include "SizeBalancedTree.h"
 #include "LinkLowLevel.h"
 
-//DefineAllReferersTreeMethods(Source)
-//DefineAllReferersTreeMethods(Linker)
-//DefineAllReferersTreeMethods(Target)
-//DefineAllSearchMethods()
-
-link_index SearchRefererOfSource(RawDB* db, link_index linkIndex, link_index refererTargetIndex,
-        link_index refererLinkerIndex) {
-    link_index currentNode = GetLink(db, linkIndex)->BySourceRootIndex;
-    while (currentNode)
-        if ((GetLink(db, currentNode)->LinkerIndex > (refererLinkerIndex)
-                || (GetLink(db, currentNode)->LinkerIndex == (refererLinkerIndex)
-                        && GetLink(db, currentNode)->TargetIndex > (refererTargetIndex))))
-            currentNode = GetLink(db, currentNode)->BySourceLeftIndex;
-        else if ((GetLink(db, currentNode)->LinkerIndex < (refererLinkerIndex)
-                || (GetLink(db, currentNode)->LinkerIndex == (refererLinkerIndex)
-                        && GetLink(db, currentNode)->TargetIndex < (refererTargetIndex))))
-            currentNode = GetLink(db, currentNode)->BySourceRightIndex;
-        else return currentNode;
-    return 0LL;
-}
-link_index SearchRefererOfLinker(RawDB* db, link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) {
-    {
-        link_index firstElementIndex = GetLink(db, linkIndex)->ByTargetRootIndex;
-        if (firstElementIndex != 0LL) {
-            link_index referer = firstElementIndex;
-            do {
-                if (GetLink(db, referer)->SourceIndex == refererSourceIndex
-                        && GetLink(db, referer)->TargetIndex == refererTargetIndex)
-                    return referer;
-                referer = GetLink(db, referer)->ByTargetRightIndex;
-            }
-            while (referer != firstElementIndex);
-        }
-    };
-    return 0LL;
-}
-link_index SearchRefererOfTarget(RawDB* db, link_index linkIndex, link_index refererSourceIndex,
-        link_index refererLinkerIndex) {
-    link_index currentNode = GetLink(db, linkIndex)->ByTargetRootIndex;
-    while (currentNode)
-        if ((GetLink(db, currentNode)->LinkerIndex > (refererLinkerIndex)
-                || (GetLink(db, currentNode)->LinkerIndex == (refererLinkerIndex)
-                        && GetLink(db, currentNode)->SourceIndex > (refererSourceIndex))))
-            currentNode = GetLink(db, currentNode)->ByTargetLeftIndex;
-        else if ((GetLink(db, currentNode)->LinkerIndex < (refererLinkerIndex)
-                || (GetLink(db, currentNode)->LinkerIndex == (refererLinkerIndex)
-                        && GetLink(db, currentNode)->SourceIndex < (refererSourceIndex))))
-            currentNode = GetLink(db, currentNode)->ByTargetRightIndex;
-        else return currentNode;
-    return 0LL;
-}
+ DefineAllReferersTreeMethods(Source)
+ DefineAllReferersTreeMethods(Linker)
+ DefineAllReferersTreeMethods(Target)
+ DefineAllSearchMethods()
 
 link_index public_calling_convention GetSourceIndex(RawDB* db, link_index linkIndex)
 {

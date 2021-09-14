@@ -10,3 +10,6 @@ add_library(Platform.Data.Triplets.Kernel STATIC
     ${CMAKE_SOURCE_DIR}/Link.c
     ${CMAKE_SOURCE_DIR}/Timestamp.c
 )
+
+add_executable(test ${CMAKE_SOURCE_DIR}/test.c)
+target_link_libraries(test PUBLIC Platform.Data.Triplets.Kernel)

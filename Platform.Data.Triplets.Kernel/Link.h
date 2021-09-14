@@ -29,9 +29,11 @@ typedef struct Link
     unsigned_integer    ByLinkerCount;          // Количество связей ссылающихся на эту связь в качестве связи связки (элементов в дереве)
 } Link;
 
-typedef struct RawDB RawDB;
+
 typedef signed_integer(*stoppable_visitor)(link_index); // Stoppable visitor callback (Останавливаемый обработчик для прохода по связям)
 typedef void(*visitor)(link_index); // Visitor callback (Неостанавливаемый обработчик для прохода по связям)
+
+typedef struct RawDB RawDB;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -71,11 +73,11 @@ extern "C" {
 
     /* "Unused marker" help mark links that was deleted, but still can be reused */
 
-    void AttachLinkToUnusedMarker(RawDB* db, link_index linkIndex);
-    void DetachLinkFromUnusedMarker(RawDB* db, link_index linkIndex);
+    PREFIX_DLL void AttachLinkToUnusedMarker(RawDB* db, link_index linkIndex);
+    PREFIX_DLL void DetachLinkFromUnusedMarker(RawDB* db, link_index linkIndex);
 
-    void AttachLink(RawDB* db, link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex);
-    void DetachLink(RawDB* db, link_index linkIndex);
+    PREFIX_DLL void AttachLink(RawDB* db, link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex);
+    PREFIX_DLL void DetachLink(RawDB* db, link_index linkIndex);
 
 #if defined(__cplusplus)
 }
