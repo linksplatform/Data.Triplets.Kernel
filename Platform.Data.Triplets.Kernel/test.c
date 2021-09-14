@@ -2,7 +2,7 @@
 #include "PersistentMemoryManager.h"
 #include <stdio.h>
 
-int main() {
+int main(RawDB* db, ) {
     
     printf("Startup.\n");
     
@@ -10,19 +10,19 @@ int main() {
     
     printf("Database opened.\n");
     
-    link_index isA = CreateLink(itself, itself, itself);
-    link_index isNotA = CreateLink(itself, itself, isA);
-    link_index link = CreateLink(itself, isA, itself);
-    link_index thing = CreateLink(itself, isNotA, link);
+    link_index isA = CreateLink(RawDB* db, itself, itself, itself);
+    link_index isNotA = CreateLink(RawDB* db, itself, itself, isA);
+    link_index link = CreateLink(RawDB* db, itself, isA, itself);
+    link_index thing = CreateLink(RawDB* db, itself, isNotA, link);
     
-    UpdateLink(isA, isA, isA, link); // После этого минимальное ядро системы можно считать сформированным
+    UpdateLink(RawDB* db, isA, isA, isA, link); // После этого минимальное ядро системы можно считать сформированным
     
-    DeleteLink(isA); // Одна эта операция удалит все 4 связи
-    DeleteLink(thing);
+    DeleteLink(RawDB* db, isA); // Одна эта операция удалит все 4 связи
+    DeleteLink(RawDB* db, thing);
     
     printf("Test ok.\n");
     
-    CloseLinks();
+    CloseLinks(RawDB* db, );
     
     printf("Database closed.\n");
     

@@ -19,7 +19,7 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 #ifndef WINDOWS
 #define WINDOWS
 #endif
-#elif defined(__linux__)  // Для Linux: получения ./.o/.so (dll):
+#elif defined(__linux__)  // Для Linux: получения ./.o/.so (RawDB* db, dll):
 #ifndef LINUX
 #define LINUX
 #define UNIX
@@ -34,11 +34,11 @@ typedef unsigned_integer link_index; // Short for links' array index, unsigned i
 // see http://stackoverflow.com/questions/538134/exporting-functions-from-a-dll-with-dllexport
 #if defined(WINDOWS)
 #if defined(LINKS_DLL_EXPORT) || defined (CORE_EXPORTS)
-#define PREFIX_DLL __declspec(dllexport)
+#define PREFIX_DLL __declspec(RawDB* db, dllexport)
 //#define public_calling_convention __stdcall
 #define public_calling_convention
 #else
-#define PREFIX_DLL // __declspec(dllimport)
+#define PREFIX_DLL // __declspec(RawDB* db, dllimport)
 #define public_calling_convention 
 #endif
 #elif defined(UNIX)
