@@ -16,10 +16,4 @@
     <tags>LinksPlatform Data.Triplets.Kernel Triplets native</tags>
     <repository type="git" url="https://github.com/linksplatform/Data.Triplets.Kernel" />
   </metadata>
-  <files>
-    <file src="build\Platform.Data.Triplets.Kernel.targets" target="build\Platform.Data.Triplets.Kernel.targets" />
-    <file src="runtimes\linux-x64\native\libPlatform_Data_Triplets_Kernel.so" target="runtimes\linux-x64\native\libPlatform_Data_Triplets_Kernel.so" />
-    <file src="runtimes\osx-x64\native\libPlatform_Data_Triplets_Kernel.dylib" target="runtimes\osx-x64\native\libPlatform_Data_Triplets_Kernel.dylib" />
-    <file src="runtimes\win-x64\native\Platform_Data_Triplets_Kernel.dll" target="runtimes\win-x64\native\Platform_Data_Triplets_Kernel.dll" />
-  </files>
 </package>
