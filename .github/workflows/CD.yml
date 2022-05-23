@@ -2,9 +2,9 @@ name: CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
@@ -26,7 +26,7 @@ jobs:
           export TARGET_PLATFORM_PREFIX="lib"
           export TARGET_PLATFORM_SUFFIX=".so"
           export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
-          export SOURCE_BRANCH="master"
+          export SOURCE_BRANCH="main"
           bash ./publish-binaries.sh
       
   buildWindow:
@@ -45,7 +45,7 @@ jobs:
           export TARGET_PLATFORM_PREFIX=""
           export TARGET_PLATFORM_SUFFIX=".dll"
           export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
-          export SOURCE_BRANCH="master"
+          export SOURCE_BRANCH="main"
           ./publish-binaries.sh
         shell: bash
 
@@ -65,7 +65,7 @@ jobs:
           export TARGET_PLATFORM_PREFIX="lib"
           export TARGET_PLATFORM_SUFFIX=".dylib"
           export TRAVIS_REPO_NAME="Data.Triplets.Kernel"
-          export SOURCE_BRANCH="master"
+          export SOURCE_BRANCH="main"
           bash ./publish-binaries.sh
 
 
