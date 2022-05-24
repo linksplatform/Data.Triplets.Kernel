@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "Timestamp.h"
 
-#if defined(WINDOWS) 
+#if defined(WINDOWS)
 #include <windows.h>
 #endif
 #if defined(UNIX)

@@ -14,7 +14,7 @@ typedef struct Link
     link_index          TargetIndex;            // Ссылка на конечную связь
     link_index          LinkerIndex;            // Ссылка на связь-связку (если разместить это поле после Source и Target, то вероятно это поможет проще конвертировать тройки в пары)
     signed_integer      Timestamp;
-    /* Referers (Index, Backlinks) */
+    /* Referers (RawDB* db, Index, Backlinks) */
     link_index          BySourceRootIndex;      // Ссылка на вершину дерева связей ссылающихся на эту связь в качестве начальной связи
     link_index          BySourceLeftIndex;      // Ссылка на левое поддерво связей ссылающихся на эту связь в качестве начальной связи
     link_index          BySourceRightIndex;     // Ссылка на правое поддерво связей ссылающихся на эту связь в качестве начальной связи
@@ -29,52 +29,55 @@ typedef struct Link
     unsigned_integer    ByLinkerCount;          // Количество связей ссылающихся на эту связь в качестве связи связки (элементов в дереве)
 } Link;
 
+
 typedef signed_integer(*stoppable_visitor)(link_index); // Stoppable visitor callback (Останавливаемый обработчик для прохода по связям)
 typedef void(*visitor)(link_index); // Visitor callback (Неостанавливаемый обработчик для прохода по связям)
+
+typedef struct RawDB RawDB;
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-    PREFIX_DLL link_index GetSourceIndex(link_index linkIndex);
-    PREFIX_DLL link_index GetLinkerIndex(link_index linkIndex);
-    PREFIX_DLL link_index GetTargetIndex(link_index linkIndex);
-    PREFIX_DLL signed_integer GetTime(link_index linkIndex);
+    PREFIX_DLL link_index GetSourceIndex(RawDB* db, link_index linkIndex);
+    PREFIX_DLL link_index GetLinkerIndex(RawDB* db, link_index linkIndex);
+    PREFIX_DLL link_index GetTargetIndex(RawDB* db, link_index linkIndex);
+    PREFIX_DLL signed_integer GetTime(RawDB* db, link_index linkIndex);
 
-    PREFIX_DLL link_index CreateLink(link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
+    PREFIX_DLL link_index CreateLink(RawDB* db, link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
 
-    PREFIX_DLL link_index SearchLink(link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
+    PREFIX_DLL link_index SearchLink(RawDB* db, link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
 
-    PREFIX_DLL link_index ReplaceLink(link_index linkIndex, link_index replacementIndex);
-    PREFIX_DLL link_index UpdateLink(link_index linkIndex, link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
+    PREFIX_DLL link_index ReplaceLink(RawDB* db, link_index linkIndex, link_index replacementIndex);
+    PREFIX_DLL link_index UpdateLink(RawDB* db, link_index linkIndex, link_index sourceIndex, link_index linkerIndex, link_index targetIndex);
 
-    PREFIX_DLL void DeleteLink(link_index linkIndex);
+    PREFIX_DLL void DeleteLink(RawDB* db, link_index linkIndex);
 
-    PREFIX_DLL link_index GetFirstRefererBySourceIndex(link_index linkIndex);
-    PREFIX_DLL link_index GetFirstRefererByLinkerIndex(link_index linkIndex);
-    PREFIX_DLL link_index GetFirstRefererByTargetIndex(link_index linkIndex);
+    PREFIX_DLL link_index GetFirstRefererBySourceIndex(RawDB* db, link_index linkIndex);
+    PREFIX_DLL link_index GetFirstRefererByLinkerIndex(RawDB* db, link_index linkIndex);
+    PREFIX_DLL link_index GetFirstRefererByTargetIndex(RawDB* db, link_index linkIndex);
 
-    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersBySource(link_index linkIndex);
-    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersByLinker(link_index linkIndex);
-    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersByTarget(link_index linkIndex);
+    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersBySource(RawDB* db, link_index linkIndex);
+    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersByLinker(RawDB* db, link_index linkIndex);
+    PREFIX_DLL unsigned_integer GetLinkNumberOfReferersByTarget(RawDB* db, link_index linkIndex);
 
-    PREFIX_DLL void WalkThroughAllReferersBySource(link_index rootIndex, visitor);
+    PREFIX_DLL void WalkThroughAllReferersBySource(RawDB* db, link_index rootIndex, visitor);
     // PREFIX_DLL void WalkThroughAllReferersBySource1(link_index rootIndex, visitor);
-    PREFIX_DLL signed_integer WalkThroughReferersBySource(link_index rootIndex, stoppable_visitor stoppableVisitor);
+    PREFIX_DLL signed_integer WalkThroughReferersBySource(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor);
 
-    PREFIX_DLL void WalkThroughAllReferersByLinker(link_index rootIndex, visitor);
-    PREFIX_DLL signed_integer WalkThroughReferersByLinker(link_index rootIndex, stoppable_visitor stoppableVisitor);
+    PREFIX_DLL void WalkThroughAllReferersByLinker(RawDB* db, link_index rootIndex, visitor);
+    PREFIX_DLL signed_integer WalkThroughReferersByLinker(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor);
 
-    PREFIX_DLL void WalkThroughAllReferersByTarget(link_index rootIndex, visitor);
-    PREFIX_DLL signed_integer WalkThroughReferersByTarget(link_index rootIndex, stoppable_visitor stoppableVisitor);
+    PREFIX_DLL void WalkThroughAllReferersByTarget(RawDB* db, link_index rootIndex, visitor);
+    PREFIX_DLL signed_integer WalkThroughReferersByTarget(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor);
 
     /* "Unused marker" help mark links that was deleted, but still can be reused */
 
-    void AttachLinkToUnusedMarker(link_index linkIndex);
-    void DetachLinkFromUnusedMarker(link_index linkIndex);
+    PREFIX_DLL void AttachLinkToUnusedMarker(RawDB* db, link_index linkIndex);
+    PREFIX_DLL void DetachLinkFromUnusedMarker(RawDB* db, link_index linkIndex);
 
-    void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex);
-    void DetachLink(link_index linkIndex);
+    PREFIX_DLL void AttachLink(RawDB* db, link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex);
+    PREFIX_DLL void DetachLink(RawDB* db, link_index linkIndex);
 
 #if defined(__cplusplus)
 }

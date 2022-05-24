@@ -6,36 +6,39 @@
 #include "Common.h"
 #include "Link.h"
 
+typedef struct RawDB RawDB;
+
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-    void InitPersistentMemoryManager();
-    
-    signed_integer OpenStorageFile(char* filename);
-    signed_integer CloseStorageFile();
-    signed_integer EnlargeStorageFile();
-    signed_integer ShrinkStorageFile();
-    signed_integer SetStorageFileMemoryMapping();
-    signed_integer ResetStorageFileMemoryMapping();
-    
-    PREFIX_DLL signed_integer OpenLinks(char* filename);
-    PREFIX_DLL signed_integer CloseLinks();
-    
-    PREFIX_DLL link_index GetMappedLink(signed_integer mappedIndex);
-    PREFIX_DLL void SetMappedLink(signed_integer mappedIndex, link_index linkIndex);
+    void InitPersistentMemoryManager(RawDB* db);
 
-    PREFIX_DLL void WalkThroughAllLinks(visitor visitor);
-    PREFIX_DLL signed_integer WalkThroughLinks(stoppable_visitor stoppableVisitor);
+    signed_integer OpenStorageFile(RawDB* db, const char* filename);
+    signed_integer CloseStorageFile(RawDB* db);
+    signed_integer EnlargeStorageFile(RawDB* db);
+    signed_integer ShrinkStorageFile(RawDB* db);
+    signed_integer SetStorageFileMemoryMapping(RawDB* db);
+    signed_integer ResetStorageFileMemoryMapping(RawDB* db);
+    
+    PREFIX_DLL signed_integer OpenLinks(RawDB* db, const char* filename);
+    PREFIX_DLL signed_integer CloseLinks(RawDB* db);
+    
+    PREFIX_DLL link_index GetMappedLink(RawDB* db, signed_integer mappedIndex);
+    PREFIX_DLL void SetMappedLink(RawDB* db, signed_integer mappedIndex, link_index linkIndex);
 
-    PREFIX_DLL unsigned_integer GetLinksCount();
+    PREFIX_DLL void WalkThroughAllLinks(RawDB* db, visitor visitor);
+    PREFIX_DLL signed_integer WalkThroughLinks(RawDB* db, stoppable_visitor stoppableVisitor);
+
+    PREFIX_DLL unsigned_integer GetLinksCount(RawDB* db);
 
     // Exported only for Tests, Unsafe to use directly (use Create/Update/Delete instead)
-    PREFIX_DLL link_index AllocateLink();
-    PREFIX_DLL void FreeLink(link_index link);
+    PREFIX_DLL link_index AllocateLink(RawDB* db);
+    PREFIX_DLL void FreeLink(RawDB* db, link_index link);
 
-    Link* GetLink(link_index linkIndex);
-    link_index GetLinkIndex(Link* link);
+    Link* GetLink(RawDB* db, link_index linkIndex);
+    link_index GetLinkIndex(RawDB* db, Link* link);
 
 #if defined(__cplusplus)
 }

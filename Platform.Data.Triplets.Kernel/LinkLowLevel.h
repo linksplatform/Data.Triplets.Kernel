@@ -8,13 +8,13 @@
 #define Concat(a, b) a##b
 #define Concat3(a, b, c) a##b##c
 
-#define _GetIndex(whatIndex, linkIndex) GetLink(linkIndex)->Concat(whatIndex,Index)
-#define _GetLeftBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,LeftIndex)
-#define _SetLeftBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,LeftIndex) = newValue
-#define _GetRightBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,RightIndex)
-#define _SetRightBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,RightIndex) = newValue
-#define _GetCountBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,Count)
-#define _SetCountBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,Count) = newValue
+#define _GetIndex(whatIndex, linkIndex) GetLink(db, linkIndex)->Concat(whatIndex,Index)
+#define _GetLeftBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,LeftIndex)
+#define _SetLeftBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,LeftIndex) = newValue
+#define _GetRightBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,RightIndex)
+#define _SetRightBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,RightIndex) = newValue
+#define _GetCountBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,Count)
+#define _SetCountBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,Count) = newValue
 
 // Tree
 
@@ -48,20 +48,20 @@
 
 // Linked-List
 
-#define _GetNextSiblingRefererBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,RightIndex)
-#define _SetNextSiblingRefererBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,RightIndex) = newValue
+#define _GetNextSiblingRefererBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,RightIndex)
+#define _SetNextSiblingRefererBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,RightIndex) = newValue
 
-#define _GetPreviousSiblingRefererBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,LeftIndex)
-#define _SetPreviousSiblingRefererBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,LeftIndex) = newValue
+#define _GetPreviousSiblingRefererBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,LeftIndex)
+#define _SetPreviousSiblingRefererBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,LeftIndex) = newValue
 
-#define _GetFirstRefererBy(byWhat, linkIndex) GetLink(linkIndex)->Concat3(By,byWhat,RootIndex)
-#define _SetFirstRefererBy(byWhat, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,byWhat,RootIndex) = newValue
+#define _GetFirstRefererBy(byWhat, linkIndex) GetLink(db, linkIndex)->Concat3(By,byWhat,RootIndex)
+#define _SetFirstRefererBy(byWhat, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,byWhat,RootIndex) = newValue
 
-#define _IncrementNumberOfReferers(whichRererersBy, linkIndex) GetLink(linkIndex)->Concat3(By,whichRererersBy,Count)++
-#define _DecrementNumberOfReferers(whichRererersBy, linkIndex) GetLink(linkIndex)->Concat3(By,whichRererersBy,Count)--
+#define _IncrementNumberOfReferers(whichRererersBy, linkIndex) GetLink(db, linkIndex)->Concat3(By,whichRererersBy,Count)++
+#define _DecrementNumberOfReferers(whichRererersBy, linkIndex) GetLink(db, linkIndex)->Concat3(By,whichRererersBy,Count)--
 
-#define _GetNumberOfReferersBy(that, linkIndex) GetLink(linkIndex)->Concat3(By,that,Count)
-#define _SetNumberOfReferersBy(that, linkIndex, newValue) GetLink(linkIndex)->Concat3(By,that,Count) = newValue
+#define _GetNumberOfReferersBy(that, linkIndex) GetLink(db, linkIndex)->Concat3(By,that,Count)
+#define _SetNumberOfReferersBy(that, linkIndex, newValue) GetLink(db, linkIndex)->Concat3(By,that,Count) = newValue
 
 #define __GetNextSiblingRefererBySource(linkIndex) _GetNextSiblingRefererBy(Source, linkIndex)
 #define __GetNextSiblingRefererByLinker(linkIndex) _GetNextSiblingRefererBy(Linker, linkIndex)
@@ -245,8 +245,8 @@
 #define BeginWalkThroughtTreeOfReferersByTarget(element, root) BeginWalkThroughtReferersTree(Target, element, root)
 #define EndWalkThroughtTreeOfReferersByTarget(element) EndWalkThroughtReferersTree(Target, element)
 
-#define SubscribeToTreeOfReferersBy(that, linkIndex, newValue) Concat3(By, that, TreeInsert)(&_GetFirstRefererBy(that, of(newValue)), linkIndex)
-#define UnSubscribeFromTreeOfReferersBy(that, linkIndex, newValue) Concat(UnsafeDetachFromTreeOfReferersBy, that)(&_GetFirstRefererBy(that, of(newValue)), linkIndex)
+#define SubscribeToTreeOfReferersBy(that, linkIndex, newValue) Concat3(By, that, TreeInsert)(db, &_GetFirstRefererBy(that, of(newValue)), linkIndex)
+#define UnSubscribeFromTreeOfReferersBy(that, linkIndex, newValue) Concat(UnsafeDetachFromTreeOfReferersBy, that)(db, &_GetFirstRefererBy(that, of(newValue)), linkIndex)
 
 #define SubscribeAsRefererToSource(linkIndex, newValue) SubscribeToTreeOfReferersBy(Source, linkIndex, newValue)
 #define SubscribeAsRefererToLinker(linkIndex, newValue) SubscribeToListOfReferersBy(Linker, linkIndex, newValue)
@@ -256,7 +256,7 @@
 #define UnSubscribeFromLinker(linkIndex, newValue) UnSubscribeFromListOfReferersBy(Linker, linkIndex, newValue)
 #define UnSubscribeFromTarget(linkIndex, newValue) UnSubscribeFromTreeOfReferersBy(Target, linkIndex, newValue)
 
-#define GetNumberOfReferersInList(that, linkIndex) GetLink(linkIndex)->Concat3(By,that,Count)
+#define GetNumberOfReferersInList(that, linkIndex) GetLink(db, linkIndex)->Concat3(By,that,Count)
 #define GetNumberOfReferersInTree(that, linkIndex) _GetFirstRefererBy(that, of(linkIndex)) ? _GetNumberOfReferersBy(that, _GetFirstRefererBy(that, of(linkIndex))) : 0
 
 #define GetNumberOfReferersBySource(linkIndex) GetNumberOfReferersInTree(Source, linkIndex)
@@ -274,7 +274,7 @@ link_index SearchRefererOfSource(link_index linkIndex, link_index refererTargetI
 }
 
 #define DefineSearchInListOfReferersByLinkerMethod()                                                                 \
-link_index SearchRefererOfLinker(link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
+link_index SearchRefererOfLinker(RawDB* db, link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
 {                                                                                                                    \
     BeginWalkThroughReferersByTarget(referer, in(linkIndex))                                                         \
         if (__GetSourceIndex(referer) == refererSourceIndex && __GetTargetIndex(referer) == refererTargetIndex)      \
@@ -294,7 +294,7 @@ link_index SearchRefererOfTarget(link_index linkIndex, link_index refererSourceI
 }
 
 #define DefineSearchInTreeOfReferersBySourceMethod()                                                                 \
-link_index SearchRefererOfSource(link_index linkIndex, link_index refererTargetIndex, link_index refererLinkerIndex) \
+link_index SearchRefererOfSource(RawDB* db, link_index linkIndex, link_index refererTargetIndex, link_index refererLinkerIndex) \
 {                                                                                                                    \
     link_index currentNode = _GetFirstRefererBy(Source, of(linkIndex));                                              \
                                                                                                                      \
@@ -310,7 +310,7 @@ link_index SearchRefererOfSource(link_index linkIndex, link_index refererTargetI
 }
 
 #define DefineSearchInTreeOfReferersByLinkerMethod()                                                                 \
-link_index SearchRefererOfLinker(link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
+link_index SearchRefererOfLinker(RawDB* db, link_index linkIndex, link_index refererSourceIndex, link_index refererTargetIndex) \
 {                                                                                                                    \
     link_index currentNode = _GetFirstRefererBy(Linker, of(linkIndex));                                              \
                                                                                                                      \
@@ -326,7 +326,7 @@ link_index SearchRefererOfLinker(link_index linkIndex, link_index refererSourceI
 }
 
 #define DefineSearchInTreeOfReferersByTargetMethod()                                                                 \
-link_index SearchRefererOfTarget(link_index linkIndex, link_index refererSourceIndex, link_index refererLinkerIndex) \
+link_index SearchRefererOfTarget(RawDB* db, link_index linkIndex, link_index refererSourceIndex, link_index refererLinkerIndex) \
 {                                                                                                                    \
     link_index currentNode = _GetFirstRefererBy(Target, of(linkIndex));                                              \
                                                                                                                      \

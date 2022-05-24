@@ -12,84 +12,84 @@ namespace PlatformDataKernelTests
     unsigned_integer isAVisitorCounter;
     unsigned_integer linkVisitorCounter;
 
-    TEST_CLASS(LinkTests)
+    TEST_CLASS(RawDB* db, LinkTests)
     {
     public:
-        static void ThingVisitor(link_index linkIndex)
+        static void ThingVisitor(RawDB* db, link_index linkIndex)
         {
             thingVisitorCounter += linkIndex;
         }
 
-        static void IsAVisitor(link_index linkIndex)
+        static void IsAVisitor(RawDB* db, link_index linkIndex)
         {
             isAVisitorCounter += linkIndex;
         }
 
-        static void LinkVisitor(link_index linkIndex)
+        static void LinkVisitor(RawDB* db, link_index linkIndex)
         {
             linkVisitorCounter += linkIndex;
         }
 
-        TEST_METHOD(CreateDeleteLinkTest)
+        TEST_METHOD(RawDB* db, CreateDeleteLinkTest)
         {
             char* filename = "db.links";
 
-            remove(filename);
+            remove(RawDB* db, filename);
 
             Assert::IsTrue(succeeded(OpenLinks(filename)));
 
-            link_index link1 = CreateLink(itself, itself, itself);
+            link_index link1 = CreateLink(RawDB* db, itself, itself, itself);
 
             DeleteLink(link1);
 
             Assert::IsTrue(succeeded(CloseLinks()));
 
-            remove(filename);
+            remove(RawDB* db, filename);
         }
 
-        TEST_METHOD(DeepCreateUpdateDeleteLinkTest)
+        TEST_METHOD(RawDB* db, DeepCreateUpdateDeleteLinkTest)
         {
             char* filename = "db.links";
 
-            remove(filename);
+            remove(RawDB* db, filename);
 
             Assert::IsTrue(succeeded(OpenLinks(filename)));
 
-            link_index isA = CreateLink(itself, itself, itself);
-            link_index isNotA = CreateLink(itself, itself, isA);
-            link_index link = CreateLink(itself, isA, itself);
-            link_index thing = CreateLink(itself, isNotA, link);
+            link_index isA = CreateLink(RawDB* db, itself, itself, itself);
+            link_index isNotA = CreateLink(RawDB* db, itself, itself, isA);
+            link_index link = CreateLink(RawDB* db, itself, isA, itself);
+            link_index thing = CreateLink(RawDB* db, itself, isNotA, link);
 
             Assert::IsTrue(GetLinksCount() == 4);
 
             Assert::IsTrue(GetTargetIndex(isA) == isA);
 
-            isA = UpdateLink(isA, isA, isA, link); // Произведено замыкание
+            isA = UpdateLink(RawDB* db, isA, isA, isA, link); // Произведено замыкание
 
             Assert::IsTrue(GetTargetIndex(isA) == link);
 
-            DeleteLink(isA); // Одна эта операция удалит все 4 связи
+            DeleteLink(RawDB* db, isA); // Одна эта операция удалит все 4 связи
 
             Assert::IsTrue(GetLinksCount() == 0);
 
             Assert::IsTrue(succeeded(CloseLinks()));
 
-            remove(filename);
+            remove(RawDB* db, filename);
         }
 
-        TEST_METHOD(LinkReferersWalkTest)
+        TEST_METHOD(RawDB* db, LinkReferersWalkTest)
         {
             char* filename = "db.links";
 
-            remove(filename);
+            remove(RawDB* db, filename);
 
             Assert::IsTrue(succeeded(OpenLinks(filename)));
 
-            link_index isA = CreateLink(itself, itself, itself);
-            link_index isNotA = CreateLink(itself, itself, isA);
-            link_index link = CreateLink(itself, isA, itself);
-            link_index thing = CreateLink(itself, isNotA, link);
-            isA = UpdateLink(isA, isA, isA, link);
+            link_index isA = CreateLink(RawDB* db, itself, itself, itself);
+            link_index isNotA = CreateLink(RawDB* db, itself, itself, isA);
+            link_index link = CreateLink(RawDB* db, itself, isA, itself);
+            link_index thing = CreateLink(RawDB* db, itself, isNotA, link);
+            isA = UpdateLink(RawDB* db, isA, isA, isA, link);
 
             Assert::IsTrue(GetLinkNumberOfReferersBySource(thing) == 1);
             Assert::IsTrue(GetLinkNumberOfReferersByLinker(isA) == 2);
@@ -99,9 +99,9 @@ namespace PlatformDataKernelTests
             isAVisitorCounter = 0;
             linkVisitorCounter = 0;
 
-            WalkThroughAllReferersBySource(thing, ThingVisitor);
-            WalkThroughAllReferersByLinker(isA, IsAVisitor);
-            WalkThroughAllReferersByTarget(link, LinkVisitor);
+            WalkThroughAllReferersBySource(RawDB* db, thing, ThingVisitor);
+            WalkThroughAllReferersByLinker(RawDB* db, isA, IsAVisitor);
+            WalkThroughAllReferersByTarget(RawDB* db, link, LinkVisitor);
 
             Assert::IsTrue(thingVisitorCounter == 4);
             Assert::IsTrue(isAVisitorCounter == (1 + 3));
@@ -109,7 +109,7 @@ namespace PlatformDataKernelTests
 
             Assert::IsTrue(succeeded(CloseLinks()));
 
-            remove(filename);
+            remove(RawDB* db, filename);
         }
     };
 }

@@ -1,7 +1,7 @@
                    GNU LESSER GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
- Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Copyright (RawDB* db, C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
@@ -107,9 +107,9 @@ the following:
        Corresponding Source.
 
        1) Use a suitable shared library mechanism for linking with the
-       Library.  A suitable mechanism is one that (a) uses at run time
+       Library.  A suitable mechanism is one that (RawDB* db, a) uses at run time
        a copy of the Library already present on the user's computer
-       system, and (b) will operate properly with a modified version
+       system, and (RawDB* db, b) will operate properly with a modified version
        of the Library that is interface-compatible with the Linked
        Version.
 

@@ -8,79 +8,79 @@
 #include "SizeBalancedTree.h"
 #include "LinkLowLevel.h"
 
-DefineAllReferersTreeMethods(Source)
-DefineAllReferersTreeMethods(Linker)
-DefineAllReferersTreeMethods(Target)
-DefineAllSearchMethods()
+ DefineAllReferersTreeMethods(Source)
+ DefineAllReferersTreeMethods(Linker)
+ DefineAllReferersTreeMethods(Target)
+ DefineAllSearchMethods()
 
-link_index public_calling_convention GetSourceIndex(link_index linkIndex)
+link_index public_calling_convention GetSourceIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->SourceIndex;
+    return GetLink(db, linkIndex)->SourceIndex;
 }
 
-link_index public_calling_convention GetLinkerIndex(link_index linkIndex)
+link_index public_calling_convention GetLinkerIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->LinkerIndex;
+    return GetLink(db, linkIndex)->LinkerIndex;
 }
 
-link_index public_calling_convention GetTargetIndex(link_index linkIndex)
+link_index public_calling_convention GetTargetIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->TargetIndex;
+    return GetLink(db, linkIndex)->TargetIndex;
 }
 
-signed_integer public_calling_convention GetTime(link_index linkIndex)
+signed_integer public_calling_convention GetTime(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->Timestamp;
+    return GetLink(db, linkIndex)->Timestamp;
 }
 
-link_index public_calling_convention CreateLink(link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
+link_index public_calling_convention CreateLink(RawDB* db, link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
 {
     if (sourceIndex != itself &&
         linkerIndex != itself &&
         targetIndex != itself)
     {
-        uint64_t linkIndex = SearchLink(sourceIndex, linkerIndex, targetIndex);
+        uint64_t linkIndex = SearchLink(db, sourceIndex, linkerIndex, targetIndex);
         if (linkIndex == null)
         {
-            linkIndex = AllocateLink();
+            linkIndex = AllocateLink(db);
             if (linkIndex != null)
             {
-                Link *link = GetLink(linkIndex);
+                Link *link = GetLink(db, linkIndex);
                 link->Timestamp = GetTimestamp();
-                AttachLink(linkIndex, sourceIndex, linkerIndex, targetIndex);
+                AttachLink(db, linkIndex, sourceIndex, linkerIndex, targetIndex);
             }
         }
         return linkIndex;
     }
     else
     {
-        uint64_t linkIndex = AllocateLink();
+        uint64_t linkIndex = AllocateLink(db);
         if (linkIndex != null)
         {
-            Link* link = GetLink(linkIndex);
+            Link* link = GetLink(db, linkIndex);
             link->Timestamp = GetTimestamp();
             sourceIndex = (sourceIndex == itself ? linkIndex : sourceIndex);
             linkerIndex = (linkerIndex == itself ? linkIndex : linkerIndex);
             targetIndex = (targetIndex == itself ? linkIndex : targetIndex);
-            AttachLink(linkIndex, sourceIndex, linkerIndex, targetIndex);
+            AttachLink(db, linkIndex, sourceIndex, linkerIndex, targetIndex);
         }
         return linkIndex;
     }
 }
 
-link_index public_calling_convention SearchLink(link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
+link_index public_calling_convention SearchLink(RawDB* db, link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
 {
     // смотря, какое дерево меньше (target или source); по linker - список
     if (GetNumberOfReferersBySource(sourceIndex) >= GetNumberOfReferersByTarget(targetIndex))
-        return SearchRefererOfTarget(targetIndex, sourceIndex, linkerIndex);
+        return SearchRefererOfTarget(db, targetIndex, sourceIndex, linkerIndex);
     else
-        return SearchRefererOfSource(sourceIndex, targetIndex, linkerIndex);
+        return SearchRefererOfSource(db, sourceIndex, targetIndex, linkerIndex);
 }
 
-link_index public_calling_convention ReplaceLink(link_index linkIndex, link_index replacementIndex)
+link_index public_calling_convention ReplaceLink(RawDB* db, link_index linkIndex, link_index replacementIndex)
 {
-    Link *link = GetLink(linkIndex);
-    Link *replacement = GetLink(replacementIndex);
+    Link *link = GetLink(db, linkIndex);
+    Link *replacement = GetLink(db, replacementIndex);
 
     if (linkIndex != replacementIndex)
     {
@@ -91,56 +91,59 @@ link_index public_calling_convention ReplaceLink(link_index linkIndex, link_inde
         while (firstRefererBySourceIndex != null)
         {
             UpdateLink(
+                db,
                 firstRefererBySourceIndex,
                 replacementIndex,
-                GetLink(firstRefererBySourceIndex)->LinkerIndex,
-                GetLink(firstRefererBySourceIndex)->TargetIndex
-                );
+                GetLink(db, firstRefererBySourceIndex)->LinkerIndex,
+                GetLink(db, firstRefererBySourceIndex)->TargetIndex
+            );
             firstRefererBySourceIndex = link->BySourceRootIndex;
         }
 
         while (firstRefererByLinkerIndex != null)
         {
             UpdateLink(
+                db,
                 firstRefererByLinkerIndex,
-                GetLink(firstRefererByLinkerIndex)->SourceIndex,
+                GetLink(db, firstRefererByLinkerIndex)->SourceIndex,
                 replacementIndex,
-                GetLink(firstRefererByLinkerIndex)->TargetIndex
-                );
+                GetLink(db, firstRefererByLinkerIndex)->TargetIndex
+            );
             firstRefererByLinkerIndex = link->ByLinkerRootIndex;
         }
 
         while (firstRefererByTargetIndex != null)
         {
             UpdateLink(
+                db,
                 firstRefererByTargetIndex,
-                GetLink(firstRefererByTargetIndex)->SourceIndex,
-                GetLink(firstRefererByTargetIndex)->LinkerIndex,
+                GetLink(db, firstRefererByTargetIndex)->SourceIndex,
+                GetLink(db, firstRefererByTargetIndex)->LinkerIndex,
                 replacementIndex
-                );
+            );
             firstRefererByTargetIndex = link->ByTargetRootIndex;
         }
 
-        DeleteLink(linkIndex);
+        DeleteLink(db, linkIndex);
 
         replacement->Timestamp = GetTimestamp();
     }
     return replacementIndex;
 }
 
-link_index public_calling_convention UpdateLink(link_index linkIndex, link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
+link_index public_calling_convention UpdateLink(RawDB* db, link_index linkIndex, link_index sourceIndex, link_index linkerIndex, link_index targetIndex)
 {
-    Link *link = GetLink(linkIndex);
+    Link *link = GetLink(db, linkIndex);
     if (link->SourceIndex == sourceIndex && link->LinkerIndex == linkerIndex && link->TargetIndex == targetIndex)
         return linkIndex;
 
     if (sourceIndex != itself && linkerIndex != itself && targetIndex != itself)
     {
-        uint64_t existingLinkIndex = SearchLink(sourceIndex, linkerIndex, targetIndex);
+        uint64_t existingLinkIndex = SearchLink(db, sourceIndex, linkerIndex, targetIndex);
         if (existingLinkIndex == null)
         {
-            DetachLink(linkIndex);
-            AttachLink(linkIndex, sourceIndex, linkerIndex, targetIndex);
+            DetachLink(db, linkIndex);
+            AttachLink(db, linkIndex, sourceIndex, linkerIndex, targetIndex);
 
             link->Timestamp = GetTimestamp();
 
@@ -148,7 +151,7 @@ link_index public_calling_convention UpdateLink(link_index linkIndex, link_index
         }
         else
         {
-            return ReplaceLink(linkIndex, existingLinkIndex);
+            return ReplaceLink(db, linkIndex, existingLinkIndex);
         }
     }
     else
@@ -157,8 +160,8 @@ link_index public_calling_convention UpdateLink(link_index linkIndex, link_index
         linkerIndex = (linkerIndex == itself ? linkIndex : linkerIndex);
         targetIndex = (targetIndex == itself ? linkIndex : targetIndex);
 
-        DetachLink(linkIndex);
-        AttachLink(linkIndex, sourceIndex, linkerIndex, targetIndex);
+        DetachLink(db, linkIndex);
+        AttachLink(db, linkIndex, sourceIndex, linkerIndex, targetIndex);
 
         link->Timestamp = GetTimestamp();
 
@@ -166,83 +169,83 @@ link_index public_calling_convention UpdateLink(link_index linkIndex, link_index
     }
 }
 
-void public_calling_convention DeleteLink(link_index linkIndex)
+void public_calling_convention DeleteLink(RawDB* db, link_index linkIndex)
 {
     if (linkIndex == null) return;
 
-    DetachLink(linkIndex);
+    DetachLink(db, linkIndex);
 
-    Link *link = GetLink(linkIndex);
+    Link *link = GetLink(db, linkIndex);
     link->Timestamp = 0;
 
-    while (link->BySourceRootIndex != null) DeleteLink(link->BySourceRootIndex);
-    while (link->ByLinkerRootIndex != null) DeleteLink(link->ByLinkerRootIndex);
-    while (link->ByTargetRootIndex != null) DeleteLink(link->ByTargetRootIndex);
+    while (link->BySourceRootIndex != null) DeleteLink(db, link->BySourceRootIndex);
+    while (link->ByLinkerRootIndex != null) DeleteLink(db, link->ByLinkerRootIndex);
+    while (link->ByTargetRootIndex != null) DeleteLink(db, link->ByTargetRootIndex);
 
-    FreeLink(linkIndex);
+    FreeLink(db, linkIndex);
 }
 
-link_index public_calling_convention GetFirstRefererBySourceIndex(link_index linkIndex)
+link_index public_calling_convention GetFirstRefererBySourceIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->BySourceRootIndex;
+    return GetLink(db, linkIndex)->BySourceRootIndex;
 }
 
-link_index public_calling_convention GetFirstRefererByLinkerIndex(link_index linkIndex)
+link_index public_calling_convention GetFirstRefererByLinkerIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->ByLinkerRootIndex;
+    return GetLink(db, linkIndex)->ByLinkerRootIndex;
 }
 
-link_index public_calling_convention GetFirstRefererByTargetIndex(link_index linkIndex)
+link_index public_calling_convention GetFirstRefererByTargetIndex(RawDB* db, link_index linkIndex)
 {
-    return GetLink(linkIndex)->ByTargetRootIndex;
+    return GetLink(db, linkIndex)->ByTargetRootIndex;
 }
 
-unsigned_integer public_calling_convention GetLinkNumberOfReferersBySource(link_index linkIndex) { return GetNumberOfReferersBySource(linkIndex); }
-unsigned_integer public_calling_convention GetLinkNumberOfReferersByLinker(link_index linkIndex) { return GetNumberOfReferersByLinker(linkIndex); }
-unsigned_integer public_calling_convention GetLinkNumberOfReferersByTarget(link_index linkIndex) { return GetNumberOfReferersByTarget(linkIndex); }
+unsigned_integer public_calling_convention GetLinkNumberOfReferersBySource(RawDB* db, link_index linkIndex) { return GetNumberOfReferersBySource(linkIndex); }
+unsigned_integer public_calling_convention GetLinkNumberOfReferersByLinker(RawDB* db, link_index linkIndex) { return GetNumberOfReferersByLinker(linkIndex); }
+unsigned_integer public_calling_convention GetLinkNumberOfReferersByTarget(RawDB* db, link_index linkIndex) { return GetNumberOfReferersByTarget(linkIndex); }
 
-void WalkThroughAllReferersBySourceCore(link_index rootIndex, visitor visitor)
+void WalkThroughAllReferersBySourceCore(RawDB* db, link_index rootIndex, visitor visitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
-        WalkThroughAllReferersBySourceCore(root->BySourceLeftIndex, visitor);
+        Link* root = GetLink(db, rootIndex);
+        WalkThroughAllReferersBySourceCore(db, root->BySourceLeftIndex, visitor);
         visitor(rootIndex);
-        WalkThroughAllReferersBySourceCore(root->BySourceRightIndex, visitor);
+        WalkThroughAllReferersBySourceCore(db, root->BySourceRightIndex, visitor);
     }
 }
 
-int WalkThroughReferersBySourceCore(link_index rootIndex, stoppable_visitor stoppableVisitor)
+int WalkThroughReferersBySourceCore(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
-        if (!WalkThroughReferersBySourceCore(root->BySourceLeftIndex, stoppableVisitor)) return false;
+        Link* root = GetLink(db, rootIndex);
+        if (!WalkThroughReferersBySourceCore(db, root->BySourceLeftIndex, stoppableVisitor)) return false;
         if (!stoppableVisitor(rootIndex)) return false;
-        if (!WalkThroughReferersBySourceCore(root->BySourceRightIndex, stoppableVisitor)) return false;
+        if (!WalkThroughReferersBySourceCore(db, root->BySourceRightIndex, stoppableVisitor)) return false;
     }
     return true;
 }
 
-void public_calling_convention WalkThroughAllReferersBySource(link_index rootIndex, visitor visitor)
+void public_calling_convention WalkThroughAllReferersBySource(RawDB* db, link_index rootIndex, visitor visitor)
 {
-    if (rootIndex != null) WalkThroughAllReferersBySourceCore(GetLink(rootIndex)->BySourceRootIndex, visitor);
+    if (rootIndex != null) WalkThroughAllReferersBySourceCore(db, GetLink(db, rootIndex)->BySourceRootIndex, visitor);
 }
 
 //void public_calling_convention WalkThroughAllReferersBySource1(link_index rootIndex, visitor visitor)
 //{
-//    BeginWalkThroughtTreeOfReferersBySource(element, rootIndex);
-//    visitor(element);
-//    EndWalkThroughtTreeOfReferersBySource(element);
+//    BeginWalkThroughtTreeOfReferersBySource(RawDB* db, element, rootIndex);
+//    visitor(RawDB* db, element);
+//    EndWalkThroughtTreeOfReferersBySource(RawDB* db, element);
 //}
 
-signed_integer public_calling_convention WalkThroughReferersBySource(link_index rootIndex, stoppable_visitor stoppableVisitor)
+signed_integer public_calling_convention WalkThroughReferersBySource(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
-    if (rootIndex != null) return WalkThroughReferersBySourceCore(GetLink(rootIndex)->BySourceRootIndex, stoppableVisitor);
+    if (rootIndex != null) return WalkThroughReferersBySourceCore(db, GetLink(db, rootIndex)->BySourceRootIndex, stoppableVisitor);
     else return true;
 }
 
-void public_calling_convention WalkThroughAllReferersByLinker(link_index rootIndex, visitor visitor)
+void public_calling_convention WalkThroughAllReferersByLinker(RawDB* db, link_index rootIndex, visitor visitor)
 {
     if (rootIndex != null)
     {
@@ -254,7 +257,7 @@ void public_calling_convention WalkThroughAllReferersByLinker(link_index rootInd
     }
 }
 
-signed_integer public_calling_convention WalkThroughReferersByLinker(link_index rootIndex, stoppable_visitor stoppableVisitor)
+signed_integer public_calling_convention WalkThroughReferersByLinker(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
     if (rootIndex != null)
     {
@@ -267,43 +270,43 @@ signed_integer public_calling_convention WalkThroughReferersByLinker(link_index 
     return true;
 }
 
-void WalkThroughAllReferersByTargetCore(link_index rootIndex, visitor visitor)
+void WalkThroughAllReferersByTargetCore(RawDB* db, link_index rootIndex, visitor visitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
-        WalkThroughAllReferersByTargetCore(root->ByTargetLeftIndex, visitor);
+        Link* root = GetLink(db, rootIndex);
+        WalkThroughAllReferersByTargetCore(db, root->ByTargetLeftIndex, visitor);
         visitor(rootIndex);
-        WalkThroughAllReferersByTargetCore(root->ByTargetRightIndex, visitor);
+        WalkThroughAllReferersByTargetCore(db, root->ByTargetRightIndex, visitor);
     }
 }
 
-int WalkThroughReferersByTargetCore(link_index rootIndex, stoppable_visitor stoppableVisitor)
+int WalkThroughReferersByTargetCore(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
-        if (!WalkThroughReferersByTargetCore(root->ByTargetLeftIndex, stoppableVisitor)) return false;
+        Link* root = GetLink(db, rootIndex);
+        if (!WalkThroughReferersByTargetCore(db, root->ByTargetLeftIndex, stoppableVisitor)) return false;
         if (!stoppableVisitor(rootIndex)) return false;
-        if (!WalkThroughReferersByTargetCore(root->ByTargetRightIndex, stoppableVisitor)) return false;
+        if (!WalkThroughReferersByTargetCore(db, root->ByTargetRightIndex, stoppableVisitor)) return false;
     }
     return true;
 }
 
-void public_calling_convention WalkThroughAllReferersByTarget(link_index rootIndex, visitor visitor)
+void public_calling_convention WalkThroughAllReferersByTarget(RawDB* db, link_index rootIndex, visitor visitor)
 {
-    if (rootIndex != null) WalkThroughAllReferersByTargetCore(GetLink(rootIndex)->ByTargetRootIndex, visitor);
+    if (rootIndex != null) WalkThroughAllReferersByTargetCore(db, GetLink(db, rootIndex)->ByTargetRootIndex, visitor);
 }
 
-signed_integer public_calling_convention WalkThroughReferersByTarget(link_index rootIndex, stoppable_visitor stoppableVisitor)
+signed_integer public_calling_convention WalkThroughReferersByTarget(RawDB* db, link_index rootIndex, stoppable_visitor stoppableVisitor)
 {
-    if (rootIndex != null) return WalkThroughReferersByTargetCore(GetLink(rootIndex)->ByTargetRootIndex, stoppableVisitor);
+    if (rootIndex != null) return WalkThroughReferersByTargetCore(db, GetLink(db, rootIndex)->ByTargetRootIndex, stoppableVisitor);
     else return true;
 }
 
-void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex)
+void AttachLink(RawDB* db, link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex)
 {
-    Link* link = GetLink(linkIndex);
+    Link* link = GetLink(db, linkIndex);
 
     link->SourceIndex = sourceIndex;
     link->LinkerIndex = linkerIndex;
@@ -314,9 +317,9 @@ void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex
     SubscribeAsRefererToTarget(linkIndex, targetIndex);
 }
 
-void DetachLink(link_index linkIndex)
+void DetachLink(RawDB* db, link_index linkIndex)
 {
-    Link* link = GetLink(linkIndex);
+    Link* link = GetLink(db, linkIndex);
 
     UnSubscribeFromSource(linkIndex, link->SourceIndex);
     UnSubscribeFromLinker(linkIndex, link->LinkerIndex);
@@ -327,12 +330,12 @@ void DetachLink(link_index linkIndex)
     link->TargetIndex = null;
 }
 
-void AttachLinkToUnusedMarker(link_index linkIndex)
+void AttachLinkToUnusedMarker(RawDB* db, link_index linkIndex)
 {
     SubscribeToListOfReferersBy(Linker, linkIndex, null);
 }
 
-void DetachLinkFromUnusedMarker(link_index linkIndex)
+void DetachLinkFromUnusedMarker(RawDB* db, link_index linkIndex)
 {
     UnSubscribeFromListOfReferersBy(Linker, linkIndex, null);
 }
