@@ -22,10 +22,16 @@ $ make
 
 The Makefile configured to build the library as `Platform.Data.Triplets.Kernel` on any platform right now. But at autodeploy these libraries renamed into `Platform_Data_Triplets_Kernel.dll` (for Windows), `libPlatform_Data_Triplets_Kernel.so` (Linux) and `libPlatform_Data_Triplets_Kernel.dylib` (macOS). Latest version of binaries can be found at [binaries](https://github.com/linksplatform/Data.Triplets.Kernel/tree/binaries) branch.
 
-Run test:
+Run tests:
 ```
-$ ./run.sh
+$ ./run.sh           # Simple test only
+$ ./run_tests.sh     # Simple test + Google Test unit tests (if available)
 ```
+
+Unit Tests:
+- The project now supports Google Test for cross-platform unit testing
+- Simple `make unit_tests` if Google Test is installed
+- For CMake users: `mkdir build && cd build && cmake .. && make && ./unit_tests`
 
 To enable debug output put `-DDEBUG` option into makefile.
 
@@ -51,7 +57,7 @@ Press `CTRL+SHIFT+B` or `F6` or use menu item (`Build Solution` or `Build Platfo
 
 Compiled library will be available at `Debug`/`Release` folder of in root folder of repository as `Platform.Data.Triplets.Kernel.dll` file.
 
-To Run tests in Visual Studio use `Test Explorer`. Actual test are located at `Platform.Data.Triplets.Kernel.Tests` project.
+**Note**: Visual Studio tests now use Google Test instead of CppUnitTest for cross-platform compatibility. The tests can be run in Visual Studio or compiled with MinGW/GCC.
 
 #### Using MinGW
 
@@ -64,9 +70,10 @@ Build library and test for it:
 $ mingw32-make
 ```
 
-Run test:
+Run tests:
 ```
-$ test
+$ test               # Simple test only
+$ mingw32-make unit_tests && unit_tests  # Google Test unit tests (if available)
 ```
 
 To enable debug output put `-DDEBUG` option into makefile.
