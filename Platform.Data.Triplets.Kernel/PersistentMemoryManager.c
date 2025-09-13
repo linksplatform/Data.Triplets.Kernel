@@ -612,7 +612,7 @@ signed_integer OpenLinks(char* filename)
 {
     InitPersistentMemoryManager();
     signed_integer result = OpenStorageFile(filename);
-    if (!succeeded(result))
+    if (failed(result))
         return result;
     return SetStorageFileMemoryMapping();
 }
@@ -620,7 +620,7 @@ signed_integer OpenLinks(char* filename)
 signed_integer CloseLinks()
 {
     signed_integer result = ResetStorageFileMemoryMapping();
-    if (!succeeded(result))
+    if (failed(result))
         return result;
     return CloseStorageFile();
 }
