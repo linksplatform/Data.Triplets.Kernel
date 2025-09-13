@@ -68,6 +68,8 @@ extern "C" {
     PREFIX_DLL void WalkThroughAllReferersByTarget(link_index rootIndex, visitor);
     PREFIX_DLL signed_integer WalkThroughReferersByTarget(link_index rootIndex, stoppable_visitor stoppableVisitor);
 
+    PREFIX_DLL signed_integer Each(link_index* query, unsigned_integer queryLength, stoppable_visitor stoppableVisitor);
+
     /* "Unused marker" help mark links that was deleted, but still can be reused */
 
     void AttachLinkToUnusedMarker(link_index linkIndex);
