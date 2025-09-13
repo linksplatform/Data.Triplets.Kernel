@@ -448,9 +448,23 @@ signed_integer SetStorageFileMemoryMapping()
 
         *pointerToLinksMaxSize = (storageFileSizeInBytes - serviceBlockSizeInBytes) / sizeof(Link);
 
-        // TODO: Varidate all mapped links are exist (otherwise reset them to 0) (fast)
-        // TODO: Varidate all freed link (holes). (slower)
-        // TODO: Varidate all links. (slowest)
+        if (failed(ValidateMappedLinks()))
+        {
+            ERROR_MESSAGE("Mapped links validation failed.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
+
+        if (failed(ValidateFreedLinks()))
+        {
+            ERROR_MESSAGE("Freed links validation failed.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
+
+        if (failed(ValidateAllLinks()))
+        {
+            ERROR_MESSAGE("Comprehensive links validation failed.");
+            return ResetStorageFileMapping() & CloseStorageFile();
+        }
     }
     else
     { // creation
@@ -712,4 +726,189 @@ void SetMappedLink(signed_integer mappingIndex, link_index linkIndex)
 {
     if (mappingIndex >= 0 && mappingIndex < (signed_integer)*pointerToMappingLinksMaxSize)
         pointerToPointerToMappingLinks[mappingIndex] = linkIndex;
+}
+
+signed_integer ValidateMappedLinks()
+{
+    DEBUG_MESSAGE("Starting fast validation of mapped links...");
+    
+    unsigned_integer validatedCount = 0;
+    unsigned_integer resetCount = 0;
+    
+    if (!pointerToPointerToMappingLinks || !pointerToMappingLinksMaxSize)
+    {
+        ERROR_MESSAGE("Mapped links array is not initialized.");
+        return ERROR_RESULT;
+    }
+    
+    for (signed_integer i = 0; i < (signed_integer)*pointerToMappingLinksMaxSize; i++)
+    {
+        link_index mappedLinkIndex = pointerToPointerToMappingLinks[i];
+        
+        if (mappedLinkIndex != null)
+        {
+            if (mappedLinkIndex >= *pointerToLinksSize || !ExistsLinkIndex(mappedLinkIndex))
+            {
+                pointerToPointerToMappingLinks[i] = null;
+                resetCount++;
+#ifdef DEBUG
+                printf("Reset invalid mapped link at index %" PRId64 ": %" PRIu64 "\n", (int64_t)i, (uint64_t)mappedLinkIndex);
+#endif
+            }
+            else
+            {
+                validatedCount++;
+            }
+        }
+    }
+    
+#ifdef DEBUG
+    printf("Mapped links validation completed. Validated: %" PRIu64 ", Reset: %" PRIu64 "\n", (uint64_t)validatedCount, (uint64_t)resetCount);
+#endif
+    
+    return SUCCESS_RESULT;
+}
+
+signed_integer ValidateFreedLinks()
+{
+    DEBUG_MESSAGE("Starting slower validation of freed links (holes)...");
+    
+    unsigned_integer validatedCount = 0;
+    unsigned_integer errorCount = 0;
+    
+    if (!pointerToUnusedMarker || !pointerToLinks || !pointerToLinksSize)
+    {
+        ERROR_MESSAGE("Links structure is not properly initialized.");
+        return ERROR_RESULT;
+    }
+    
+    link_index currentUnusedIndex = pointerToUnusedMarker->ByLinkerRootIndex;
+    
+    while (currentUnusedIndex != null)
+    {
+        if (currentUnusedIndex >= *pointerToLinksSize)
+        {
+            ERROR_MESSAGE("Invalid unused link index found in chain.");
+            errorCount++;
+            break;
+        }
+        
+        Link* unusedLink = GetLink(currentUnusedIndex);
+        
+        if (ExistsLink(unusedLink))
+        {
+            ERROR_MESSAGE("Link marked as unused but appears to exist.");
+            errorCount++;
+        }
+        
+        if (unusedLink->LinkerIndex != null)
+        {
+            ERROR_MESSAGE("Unused link has non-null LinkerIndex.");
+            errorCount++;
+        }
+        
+        validatedCount++;
+        currentUnusedIndex = unusedLink->ByLinkerRootIndex;
+        
+        if (validatedCount > *pointerToLinksSize)
+        {
+            ERROR_MESSAGE("Circular reference detected in unused links chain.");
+            errorCount++;
+            break;
+        }
+    }
+    
+#ifdef DEBUG
+    printf("Freed links validation completed. Validated: %" PRIu64 ", Errors: %" PRIu64 "\n", (uint64_t)validatedCount, (uint64_t)errorCount);
+#endif
+    
+    return errorCount == 0 ? SUCCESS_RESULT : ERROR_RESULT;
+}
+
+signed_integer ValidateAllLinks()
+{
+    DEBUG_MESSAGE("Starting comprehensive validation of all links...");
+    
+    unsigned_integer validatedCount = 0;
+    unsigned_integer errorCount = 0;
+    
+    if (!pointerToLinks || !pointerToLinksSize || !pointerToLinksMaxSize)
+    {
+        ERROR_MESSAGE("Links structure is not properly initialized.");
+        return ERROR_RESULT;
+    }
+    
+    for (link_index i = 0; i < *pointerToLinksSize; i++)
+    {
+        Link* link = GetLink(i);
+        
+        if (i == 0)
+        {
+            if (!IsNullLinkEmpty())
+            {
+                ERROR_MESSAGE("Null link (index 0) is not properly empty.");
+                errorCount++;
+            }
+            continue;
+        }
+        
+        if (ExistsLink(link))
+        {
+            if (link->SourceIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid SourceIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->SourceIndex);
+#endif
+                errorCount++;
+            }
+            
+            if (link->TargetIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid TargetIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->TargetIndex);
+#endif
+                errorCount++;
+            }
+            
+            if (link->LinkerIndex != null && link->LinkerIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid LinkerIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->LinkerIndex);
+#endif
+                errorCount++;
+            }
+            
+            if (link->BySourceRootIndex != null && link->BySourceRootIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid BySourceRootIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->BySourceRootIndex);
+#endif
+                errorCount++;
+            }
+            
+            if (link->ByTargetRootIndex != null && link->ByTargetRootIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid ByTargetRootIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->ByTargetRootIndex);
+#endif
+                errorCount++;
+            }
+            
+            if (link->ByLinkerRootIndex != null && link->ByLinkerRootIndex >= *pointerToLinksSize)
+            {
+#ifdef DEBUG
+                printf("Link %" PRIu64 " has invalid ByLinkerRootIndex: %" PRIu64 "\n", (uint64_t)i, (uint64_t)link->ByLinkerRootIndex);
+#endif
+                errorCount++;
+            }
+            
+            validatedCount++;
+        }
+    }
+    
+#ifdef DEBUG
+    printf("Comprehensive links validation completed. Validated: %" PRIu64 ", Errors: %" PRIu64 "\n", (uint64_t)validatedCount, (uint64_t)errorCount);
+#endif
+    
+    return errorCount == 0 ? SUCCESS_RESULT : ERROR_RESULT;
 }
