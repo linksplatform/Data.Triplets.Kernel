@@ -301,6 +301,56 @@ signed_integer public_calling_convention WalkThroughReferersByTarget(link_index 
     else return true;
 }
 
+signed_integer public_calling_convention Each(link_index* query, unsigned_integer queryLength, stoppable_visitor stoppableVisitor)
+{
+    if (query == null || queryLength == 0 || stoppableVisitor == null)
+        return true;
+
+    if (queryLength == 1)
+    {
+        return stoppableVisitor(query[0]);
+    }
+    else if (queryLength == 2)
+    {
+        link_index sourcePattern = query[0];
+        link_index targetPattern = query[1];
+        
+        if (sourcePattern == null && targetPattern != null)
+        {
+            return WalkThroughReferersByTarget(targetPattern, stoppableVisitor);
+        }
+        else if (sourcePattern != null && targetPattern == null)
+        {
+            return WalkThroughReferersBySource(sourcePattern, stoppableVisitor);
+        }
+        else if (sourcePattern != null && targetPattern != null)
+        {
+            if (GetNumberOfReferersBySource(sourcePattern) <= GetNumberOfReferersByTarget(targetPattern))
+            {
+                return WalkThroughReferersBySource(sourcePattern, stoppableVisitor);
+            }
+            else
+            {
+                return WalkThroughReferersByTarget(targetPattern, stoppableVisitor);
+            }
+        }
+    }
+    else if (queryLength == 3)
+    {
+        link_index sourcePattern = query[0];
+        link_index linkerPattern = query[1];
+        link_index targetPattern = query[2];
+        
+        link_index found = SearchLink(sourcePattern, linkerPattern, targetPattern);
+        if (found != null)
+        {
+            return stoppableVisitor(found);
+        }
+    }
+    
+    return true;
+}
+
 void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex)
 {
     Link* link = GetLink(linkIndex);
