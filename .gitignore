@@ -411,3 +411,4 @@ MigrationBackup/
 NuGetPackageSource/runtimes/
 
 test
+experiments/
