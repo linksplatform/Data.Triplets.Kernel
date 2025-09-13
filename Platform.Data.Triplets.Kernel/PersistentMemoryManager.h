@@ -37,6 +37,10 @@ extern "C" {
     Link* GetLink(link_index linkIndex);
     link_index GetLinkIndex(Link* link);
 
+    PREFIX_DLL signed_integer ValidateMappedLinks();
+    PREFIX_DLL signed_integer ValidateFreedLinks();
+    PREFIX_DLL signed_integer ValidateAllLinks();
+
 #if defined(__cplusplus)
 }
 #endif
