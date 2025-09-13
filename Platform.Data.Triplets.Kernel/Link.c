@@ -57,7 +57,7 @@ link_index public_calling_convention CreateLink(link_index sourceIndex, link_ind
         uint64_t linkIndex = AllocateLink();
         if (linkIndex != null)
         {
-            Link* link = GetLink(linkIndex);
+            Link *link = GetLink(linkIndex);
             link->Timestamp = GetTimestamp();
             sourceIndex = (sourceIndex == itself ? linkIndex : sourceIndex);
             linkerIndex = (linkerIndex == itself ? linkIndex : linkerIndex);
@@ -205,7 +205,7 @@ void WalkThroughAllReferersBySourceCore(link_index rootIndex, visitor visitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
+        Link *root = GetLink(rootIndex);
         WalkThroughAllReferersBySourceCore(root->BySourceLeftIndex, visitor);
         visitor(rootIndex);
         WalkThroughAllReferersBySourceCore(root->BySourceRightIndex, visitor);
@@ -216,7 +216,7 @@ int WalkThroughReferersBySourceCore(link_index rootIndex, stoppable_visitor stop
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
+        Link *root = GetLink(rootIndex);
         if (!WalkThroughReferersBySourceCore(root->BySourceLeftIndex, stoppableVisitor)) return false;
         if (!stoppableVisitor(rootIndex)) return false;
         if (!WalkThroughReferersBySourceCore(root->BySourceRightIndex, stoppableVisitor)) return false;
@@ -271,7 +271,7 @@ void WalkThroughAllReferersByTargetCore(link_index rootIndex, visitor visitor)
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
+        Link *root = GetLink(rootIndex);
         WalkThroughAllReferersByTargetCore(root->ByTargetLeftIndex, visitor);
         visitor(rootIndex);
         WalkThroughAllReferersByTargetCore(root->ByTargetRightIndex, visitor);
@@ -282,7 +282,7 @@ int WalkThroughReferersByTargetCore(link_index rootIndex, stoppable_visitor stop
 {
     if (rootIndex != null)
     {
-        Link* root = GetLink(rootIndex);
+        Link *root = GetLink(rootIndex);
         if (!WalkThroughReferersByTargetCore(root->ByTargetLeftIndex, stoppableVisitor)) return false;
         if (!stoppableVisitor(rootIndex)) return false;
         if (!WalkThroughReferersByTargetCore(root->ByTargetRightIndex, stoppableVisitor)) return false;
@@ -303,7 +303,7 @@ signed_integer public_calling_convention WalkThroughReferersByTarget(link_index 
 
 void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex, uint64_t targetIndex)
 {
-    Link* link = GetLink(linkIndex);
+    Link *link = GetLink(linkIndex);
 
     link->SourceIndex = sourceIndex;
     link->LinkerIndex = linkerIndex;
@@ -316,7 +316,7 @@ void AttachLink(link_index linkIndex, uint64_t sourceIndex, uint64_t linkerIndex
 
 void DetachLink(link_index linkIndex)
 {
-    Link* link = GetLink(linkIndex);
+    Link *link = GetLink(linkIndex);
 
     UnSubscribeFromSource(linkIndex, link->SourceIndex);
     UnSubscribeFromLinker(linkIndex, link->LinkerIndex);

@@ -2,7 +2,7 @@
 #define __LINKS_SIZE_BALANCED_TREE_H__
 
 #define DefineTreeLeftRotateMethod(methodName, elementType, GetLeftNode, SetLeftNode, GetRightNode, SetRightNode, GetNodeSize, SetNodeSize)                                     \
-void methodName(elementType* rootIndex)                                                                                                                                         \
+void methodName(elementType *rootIndex)                                                                                                                                         \
 {                                                                                                                                                                               \
     elementType rightNodeIndex = GetRightNode(*rootIndex);                                                                                                                      \
     if (rightNodeIndex == null) return;                                                                                                                                         \
@@ -14,7 +14,7 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeRightRotateMethod(methodName, elementType, GetLeftNode, SetLeftNode, GetRightNode, SetRightNode, GetNodeSize, SetNodeSize)                                    \
-void methodName(elementType* rootIndex)                                                                                                                                         \
+void methodName(elementType *rootIndex)                                                                                                                                         \
 {                                                                                                                                                                               \
     elementType leftNodeIndex = GetLeftNode(*rootIndex);                                                                                                                        \
     if(leftNodeIndex == null) return;                                                                                                                                           \
@@ -26,11 +26,11 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeMaintainMethodsHeaders(LeftMaintain, RightMaintain, elementType) \
-    void LeftMaintain(elementType* rootIndex);                                     \
-    void RightMaintain(elementType* rootIndex);
+    void LeftMaintain(elementType *rootIndex);                                     \
+    void RightMaintain(elementType *rootIndex);
 
 #define DefineTreeLeftMaintainMethod(methodName, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)        \
-void methodName(elementType* rootIndex)                                                                                                              \
+void methodName(elementType *rootIndex)                                                                                                              \
 {                                                                                                                                                    \
     if (*rootIndex)                                                                                                                                  \
     {                                                                                                                                                \
@@ -58,7 +58,7 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeRightMaintainMethod(methodName, LeftMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)       \
-void methodName(elementType* rootIndex)                                                                                                             \
+void methodName(elementType *rootIndex)                                                                                                             \
 {                                                                                                                                                   \
     if (*rootIndex)                                                                                                                                 \
     {                                                                                                                                               \
@@ -86,8 +86,8 @@ void methodName(elementType* rootIndex)                                         
 }
 
 #define DefineTreeMaintainMethods(LeftMaintain, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize) \
-    void LeftMaintain(elementType* rootIndex);                                                                                               \
-    void RightMaintain(elementType* rootIndex);                                                                                              \
+    void LeftMaintain(elementType *rootIndex);                                                                                               \
+    void RightMaintain(elementType *rootIndex);                                                                                              \
     DefineTreeLeftMaintainMethod(LeftMaintain, RightMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)  \
     DefineTreeRightMaintainMethod(RightMaintain, LeftMaintain, elementType, LeftRotate, RightRotate, GetLeftNode, GetRightNode, GetNodeSize)
 

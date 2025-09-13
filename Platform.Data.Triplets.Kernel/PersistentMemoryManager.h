@@ -12,14 +12,14 @@ extern "C" {
 
     void InitPersistentMemoryManager();
     
-    signed_integer OpenStorageFile(char* filename);
+    signed_integer OpenStorageFile(char *filename);
     signed_integer CloseStorageFile();
     signed_integer EnlargeStorageFile();
     signed_integer ShrinkStorageFile();
     signed_integer SetStorageFileMemoryMapping();
     signed_integer ResetStorageFileMemoryMapping();
     
-    PREFIX_DLL signed_integer OpenLinks(char* filename);
+    PREFIX_DLL signed_integer OpenLinks(char *filename);
     PREFIX_DLL signed_integer CloseLinks();
     
     PREFIX_DLL link_index GetMappedLink(signed_integer mappedIndex);
@@ -34,8 +34,8 @@ extern "C" {
     PREFIX_DLL link_index AllocateLink();
     PREFIX_DLL void FreeLink(link_index link);
 
-    Link* GetLink(link_index linkIndex);
-    link_index GetLinkIndex(Link* link);
+    Link *GetLink(link_index linkIndex);
+    link_index GetLinkIndex(Link *link);
 
 #if defined(__cplusplus)
 }

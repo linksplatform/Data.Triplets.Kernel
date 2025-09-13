@@ -32,7 +32,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(CreateDeleteLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -49,7 +49,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(DeepCreateUpdateDeleteLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -79,7 +79,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(LinkReferersWalkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 

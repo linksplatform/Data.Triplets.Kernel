@@ -33,7 +33,7 @@ signed_integer      storageFileHandle;                  // для open()
 #endif
 int64_t             storageFileSizeInBytes;             // Текущий размер файла.
 
-void*               pointerToMappedRegion;              // указатель на начало региона памяти - результата mmap()
+void               *pointerToMappedRegion;              // указатель на начало региона памяти - результата mmap()
 
 // Константы, рассчитываемые при запуске приложения
 int64_t             currentMemoryPageSizeInBytes;       // Размер страницы в операционной системе. Инициализируется в InitPersistentMemoryManager();
@@ -43,15 +43,15 @@ int64_t             baseBlockSizeInBytes;               // Базовый раз
 int64_t             storageFileMinSizeInBytes;          // Минимально возможный размер файла базы данных (Базовый размер блока (шага) + размер сервисного блока)
 
 
-uint64_t*           pointerToDataSeal;                  // Указатель на уникальную печать, если она установлена, значит база данных открывается во второй или более раз.
-uint64_t*           pointerToLinkIndexSize;             // Указатель на размер одного индекса связи.
-uint64_t*           pointerToMappingLinksMaxSize;       // Указатель на максимальный размер массива базовых (привязанных) связей.
-link_index*         pointerToPointerToMappingLinks;     // Указатель на начало массива базовых (привязанных) связей. Инициализируется в SetStorageFileMemoryMapping().
-link_index*         pointerToLinksMaxSize;              // Указатель на максимальный размер массива связей.
-link_index*         pointerToLinksSize;                 // Указатель на текущий размер массива связей.
-Link*               pointerToLinks;                     // Указатель на начало массива связей. Инициализируется в SetStorageFileMemoryMapping().
+uint64_t           *pointerToDataSeal;                  // Указатель на уникальную печать, если она установлена, значит база данных открывается во второй или более раз.
+uint64_t           *pointerToLinkIndexSize;             // Указатель на размер одного индекса связи.
+uint64_t           *pointerToMappingLinksMaxSize;       // Указатель на максимальный размер массива базовых (привязанных) связей.
+link_index         *pointerToPointerToMappingLinks;     // Указатель на начало массива базовых (привязанных) связей. Инициализируется в SetStorageFileMemoryMapping().
+link_index         *pointerToLinksMaxSize;              // Указатель на максимальный размер массива связей.
+link_index         *pointerToLinksSize;                 // Указатель на текущий размер массива связей.
+Link               *pointerToLinks;                     // Указатель на начало массива связей. Инициализируется в SetStorageFileMemoryMapping().
 
-Link*               pointerToUnusedMarker;              // Инициализируется в SetStorageFileMemoryMapping()
+Link               *pointerToUnusedMarker;              // Инициализируется в SetStorageFileMemoryMapping()
 
 void PrintLinksDatabaseSize()
 {
@@ -63,7 +63,7 @@ void PrintLinksDatabaseSize()
 #endif
 }
 
-bool ExistsLink(Link* link)
+bool ExistsLink(Link *link)
 {
     return link && pointerToLinks != link && link->LinkerIndex; //link->SourceIndex && link->LinkerIndex && link->TargetIndex;
 }
@@ -78,12 +78,12 @@ bool IsNullLinkEmpty()
     return !pointerToLinks->SourceIndex && !pointerToLinks->LinkerIndex && !pointerToLinks->TargetIndex;
 }
 
-Link* GetLink(link_index linkIndex)
+Link *GetLink(link_index linkIndex)
 {
     return pointerToLinks + linkIndex;
 }
 
-link_index GetLinkIndex(Link* link)
+link_index GetLinkIndex(Link *link)
 {
     return link - pointerToLinks;
 }
@@ -227,7 +227,7 @@ void InitPersistentMemoryManager()
     return;
 }
 
-signed_integer OpenStorageFile(char* filename)
+signed_integer OpenStorageFile(char *filename)
 {
     if (failed(EnsureStorageFileClosed()))
         return ERROR_RESULT;
@@ -392,7 +392,7 @@ signed_integer SetStorageFileMemoryMapping()
     //    ============================
     //    ! means it is always that size (does not depend on link_index size)
 
-    void* pointers[7] = {
+    void *pointers[7] = {
         // Service Block
         (char*)pointerToMappedRegion + sizeof(uint64_t) * 0, // 0
         (char*)pointerToMappedRegion + sizeof(uint64_t) * 1, // 1
@@ -608,7 +608,7 @@ signed_integer CloseStorageFile()
     return ERROR_RESULT;
 }
 
-signed_integer OpenLinks(char* filename)
+signed_integer OpenLinks(char *filename)
 {
     InitPersistentMemoryManager();
     signed_integer result = OpenStorageFile(filename);
@@ -652,7 +652,7 @@ link_index AllocateLink()
 void FreeLink(link_index linkIndex)
 {
     Link *link = GetLink(linkIndex);
-    Link* lastUsedLink = pointerToLinks + *pointerToLinksSize - 1;
+    Link *lastUsedLink = pointerToLinks + *pointerToLinksSize - 1;
 
     if (link < lastUsedLink)
     {
@@ -677,8 +677,8 @@ void WalkThroughAllLinks(visitor visitor)
     if (*pointerToLinksSize <= 1)
         return;
 
-    Link* currentLink = pointerToLinks + 1;
-    Link* lastLink = pointerToLinks + *pointerToLinksSize - 1;
+    Link *currentLink = pointerToLinks + 1;
+    Link *lastLink = pointerToLinks + *pointerToLinksSize - 1;
 
     do {
         if (ExistsLink(currentLink)) visitor(GetLinkIndex(currentLink));
@@ -690,8 +690,8 @@ signed_integer WalkThroughLinks(stoppable_visitor stoppableVisitor)
     if (*pointerToLinksSize <= 1)
         return true;
 
-    Link* currentLink = pointerToLinks + 1;
-    Link* lastLink = pointerToLinks + *pointerToLinksSize - 1;
+    Link *currentLink = pointerToLinks + 1;
+    Link *lastLink = pointerToLinks + *pointerToLinksSize - 1;
 
     do {
         if (ExistsLink(currentLink) && !stoppableVisitor(GetLinkIndex(currentLink))) return false;

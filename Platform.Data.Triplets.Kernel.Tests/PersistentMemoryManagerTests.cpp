@@ -13,7 +13,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(FileMappingTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -26,7 +26,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(AllocateFreeLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -43,7 +43,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(AttachToUnusedLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -61,7 +61,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(DetachToUnusedLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
@@ -80,7 +80,7 @@ namespace PlatformDataKernelTests
 
         TEST_METHOD(GetSetMappedLinkTest)
         {
-            char* filename = "db.links";
+            char *filename = "db.links";
 
             remove(filename);
 
