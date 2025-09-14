@@ -106,7 +106,7 @@ void methodName(elementType* rootIndex, elementType newNodeIndex)               
         if (IsElementLessThanOtherElement(newNodeIndex, *rootIndex))                                                                                                     \
         {                                                                                                                                                                \
             methodName(&GetLeftNode(*rootIndex), newNodeIndex);                                                                                                          \
-             LeftMaintain(rootIndex);                                                                                                                                    \
+            LeftMaintain(rootIndex);                                                                                                                                    \
         }                                                                                                                                                                \
         else                                                                                                                                                             \
         {                                                                                                                                                                \
