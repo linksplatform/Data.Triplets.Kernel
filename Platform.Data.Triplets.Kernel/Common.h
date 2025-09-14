@@ -10,8 +10,8 @@
 
 // Size for basic types
 // Размер для основных типов
-typedef uint64_t unsigned_integer; // Unsigned integer (Беззнаковое целое число)
-typedef int64_t signed_integer; // Signed integer (Целое число со знаком)
+typedef uint32_t unsigned_integer; // Unsigned integer (Беззнаковое целое число)
+typedef int32_t signed_integer; // Signed integer (Целое число со знаком)
 typedef unsigned_integer link_index; // Short for links' array index, unsigned integer (короткая форма для беззнакового индекса в массиве связей)
 
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__) // Для Windows: получения .exe/.obj/.dll (Visual C++/MinGW32):
