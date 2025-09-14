@@ -24,6 +24,15 @@
 #include "Link.h"
 #include "PersistentMemoryManager.h"
 
+// Forward declarations for context-aware functions (declared early to avoid conflicts)
+struct LinksContext;
+static signed_integer EnsureStorageFileMappedWithContext(struct LinksContext* context);
+signed_integer ResizeStorageFileWithContext(struct LinksContext* context);
+signed_integer EnlargeStorageFileWithContext(struct LinksContext* context);
+signed_integer ShrinkStorageFileWithContext(struct LinksContext* context);
+void AttachLinkToUnusedMarkerWithContext(struct LinksContext* context, link_index linkIndex);
+void DetachLinkFromUnusedMarkerWithContext(struct LinksContext* context, link_index linkIndex);
+
 // Дескриптор файла базы данных и дескриптор объекта отображения (map)
 #if defined(WINDOWS)
 HANDLE              storageFileHandle;
@@ -88,10 +97,11 @@ link_index GetLinkIndex(Link* link)
     return link - pointerToLinks;
 }
 
-unsigned_integer GetLinksCount()
-{
-    return *pointerToLinksSize - 1;
-}
+// GetLinksCount moved to LinksContext.c for backward compatibility
+// unsigned_integer GetLinksCount()
+// {
+//     return *pointerToLinksSize - 1;
+// }
 
 unsigned_integer GetCurrentSystemPageSize()
 {
@@ -608,22 +618,23 @@ signed_integer CloseStorageFile()
     return ERROR_RESULT;
 }
 
-signed_integer OpenLinks(char* filename)
-{
-    InitPersistentMemoryManager();
-    signed_integer result = OpenStorageFile(filename);
-    if (!succeeded(result))
-        return result;
-    return SetStorageFileMemoryMapping();
-}
+// OpenLinks and CloseLinks moved to LinksContext.c for backward compatibility
+// signed_integer OpenLinks(char* filename)
+// {
+//     InitPersistentMemoryManager();
+//     signed_integer result = OpenStorageFile(filename);
+//     if (!succeeded(result))
+//         return result;
+//     return SetStorageFileMemoryMapping();
+// }
 
-signed_integer CloseLinks()
-{
-    signed_integer result = ResetStorageFileMemoryMapping();
-    if (!succeeded(result))
-        return result;
-    return CloseStorageFile();
-}
+// signed_integer CloseLinks()
+// {
+//     signed_integer result = ResetStorageFileMemoryMapping();
+//     if (!succeeded(result))
+//         return result;
+//     return CloseStorageFile();
+// }
 
 link_index AllocateFromUnusedLinks()
 {
@@ -712,4 +723,470 @@ void SetMappedLink(signed_integer mappingIndex, link_index linkIndex)
 {
     if (mappingIndex >= 0 && mappingIndex < (signed_integer)*pointerToMappingLinksMaxSize)
         pointerToPointerToMappingLinks[mappingIndex] = linkIndex;
+}
+
+// Context-aware implementations for multiple instances support
+
+#include "LinksContext.h"
+
+void InitPersistentMemoryManagerWithContext(LinksContext* context)
+{
+    if (context == NULL) return;
+    
+    context->currentMemoryPageSizeInBytes = GetCurrentSystemPageSize();
+    context->serviceBlockSizeInBytes = context->currentMemoryPageSizeInBytes * 2;
+
+    context->baseLinksSizeInBytes = context->serviceBlockSizeInBytes - sizeof(uint64_t) * 3 - sizeof(link_index) * 2;
+    context->baseBlockSizeInBytes = context->currentMemoryPageSizeInBytes * 256 * 4 * sizeof(Link); // ~ 512 mb
+
+    context->storageFileMinSizeInBytes = context->serviceBlockSizeInBytes + context->baseBlockSizeInBytes;
+
+#ifdef DEBUG
+    printf("storageFileMinSizeInBytes = %" PRIu64 "\n", (uint64_t)context->storageFileMinSizeInBytes);
+#endif
+
+    // Reset file handles to invalid state
+#if defined(WINDOWS)
+    context->storageFileHandle = INVALID_HANDLE_VALUE;
+    context->storageFileMappingHandle = INVALID_HANDLE_VALUE;
+    context->pointerToMappedRegion = NULL;
+#elif defined(UNIX)
+    context->storageFileHandle = -1;
+    context->pointerToMappedRegion = MAP_FAILED;
+#endif
+    context->storageFileSizeInBytes = 0;
+}
+
+static bool IsStorageFileOpenedWithContext(LinksContext* context)
+{
+#if defined(WINDOWS)
+    return context->storageFileHandle != INVALID_HANDLE_VALUE;
+#elif defined(UNIX)
+    return context->storageFileHandle != -1;
+#endif
+}
+
+static signed_integer EnsureStorageFileOpenedWithContext(LinksContext* context)
+{
+    if (!IsStorageFileOpenedWithContext(context))
+    {
+        ERROR_MESSAGE("Storage file is not open.");
+        return ERROR_RESULT;
+    }
+    return SUCCESS_RESULT;
+}
+
+static signed_integer EnsureStorageFileClosedWithContext(LinksContext* context)
+{
+    if (IsStorageFileOpenedWithContext(context))
+    {
+        ERROR_MESSAGE("Storage file is not closed.");
+        return ERROR_RESULT;
+    }
+    return SUCCESS_RESULT;
+}
+
+static bool IsStorageFileMappedWithContext(LinksContext* context)
+{
+#if defined(WINDOWS)
+    return context->storageFileMappingHandle != INVALID_HANDLE_VALUE && context->pointerToMappedRegion != NULL;
+#elif defined(UNIX)
+    return context->pointerToMappedRegion != MAP_FAILED;
+#endif
+}
+
+signed_integer OpenStorageFileWithContext(LinksContext* context, char* filename)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+    if (failed(EnsureStorageFileClosedWithContext(context)))
+        return ERROR_RESULT;
+
+    DEBUG_MESSAGE("Opening file...");
+
+#if defined(WINDOWS)
+    context->storageFileHandle = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (context->storageFileHandle == INVALID_HANDLE_VALUE)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to open file.", GetLastError());
+        return ERROR_RESULT;
+    }
+    LARGE_INTEGER fileSize;
+    if(!GetFileSizeEx(context->storageFileHandle, &fileSize))
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to get file size.", GetLastError());
+        return ERROR_RESULT;
+    }
+    context->storageFileSizeInBytes = (int64_t)fileSize.QuadPart;
+#elif defined(UNIX)
+    context->storageFileHandle = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (context->storageFileHandle == -1)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to open file.", errno);
+        return ERROR_RESULT;
+    }
+
+    struct stat statbuf;
+    if (fstat(context->storageFileHandle, &statbuf) != 0)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to get file size.", errno);
+        return ERROR_RESULT;
+    }
+
+    context->storageFileSizeInBytes = statbuf.st_size;
+#endif
+
+#ifdef DEBUG
+    printf("storageFileSizeInBytes = %" PRIu64 "\n", (uint64_t)context->storageFileSizeInBytes);
+    printf("File %s opened.\n\n", filename);
+#endif
+
+    // Initialize or set up memory mapping
+    if (context->storageFileSizeInBytes < context->storageFileMinSizeInBytes)
+    {
+        context->storageFileSizeInBytes = context->storageFileMinSizeInBytes;
+        if (failed(ResizeStorageFileWithContext(context)))
+            return ERROR_RESULT;
+    }
+
+    return SetStorageFileMemoryMappingWithContext(context);
+}
+
+signed_integer CloseStorageFileWithContext(LinksContext* context)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+    signed_integer result = ResetStorageFileMemoryMappingWithContext(context);
+
+    if (IsStorageFileOpenedWithContext(context))
+    {
+#if defined(WINDOWS)
+        if (!CloseHandle(context->storageFileHandle))
+        {
+            ERROR_MESSAGE_WITH_CODE("Failed to close file.", GetLastError());
+            result = ERROR_RESULT;
+        }
+        context->storageFileHandle = INVALID_HANDLE_VALUE;
+#elif defined(UNIX)
+        if (close(context->storageFileHandle) != 0)
+        {
+            ERROR_MESSAGE_WITH_CODE("Failed to close file.", errno);
+            result = ERROR_RESULT;
+        }
+        context->storageFileHandle = -1;
+#endif
+        context->storageFileSizeInBytes = 0;
+
+        DEBUG_MESSAGE("File closed.");
+    }
+
+    return result;
+}
+
+Link* GetLinkWithContext(LinksContext* context, link_index linkIndex)
+{
+    if (context == NULL) return NULL;
+    return context->pointerToLinks + linkIndex;
+}
+
+link_index GetLinkIndexWithContext(LinksContext* context, Link* link)
+{
+    if (context == NULL) return null;
+    return link - context->pointerToLinks;
+}
+
+link_index AllocateLinkWithContext(LinksContext* context)
+{
+    if (context == NULL) return null;
+    
+    if (context->pointerToUnusedMarker->SourceIndex != null)
+    {
+        link_index linkIndex = context->pointerToUnusedMarker->SourceIndex;
+        DetachLinkFromUnusedMarkerWithContext(context, linkIndex);
+        return linkIndex;
+    }
+    else
+    {
+        if (*context->pointerToLinksSize >= *context->pointerToLinksMaxSize)
+        {
+            if (failed(EnlargeStorageFileWithContext(context)))
+                return null;
+        }
+
+        link_index newLinkIndex = (*context->pointerToLinksSize)++;
+        return newLinkIndex;
+    }
+}
+
+void FreeLinkWithContext(LinksContext* context, link_index linkIndex)
+{
+    if (context == NULL) return;
+    
+    Link *link = GetLinkWithContext(context, linkIndex);
+    Link* lastUsedLink = context->pointerToLinks + *context->pointerToLinksSize - 1;
+
+    if (link < lastUsedLink)
+    {
+        AttachLinkToUnusedMarkerWithContext(context, linkIndex);
+    }
+    else if (link == lastUsedLink)
+    {
+        --*context->pointerToLinksSize;
+
+        while ((--lastUsedLink)->LinkerIndex == null && context->pointerToLinks != lastUsedLink)
+        {
+            DetachLinkFromUnusedMarkerWithContext(context, GetLinkIndexWithContext(context, lastUsedLink));
+            --*context->pointerToLinksSize;
+        }
+
+        ShrinkStorageFileWithContext(context);
+    }
+}
+
+// Forward declarations already declared at the top of the file
+
+signed_integer SetStorageFileMemoryMappingWithContext(LinksContext* context)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+#if defined(WINDOWS)
+    // Implementation for Windows
+    context->storageFileMappingHandle = CreateFileMapping(context->storageFileHandle, NULL, PAGE_READWRITE, 0, 0, NULL);
+    if (context->storageFileMappingHandle == NULL)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to create file mapping.", GetLastError());
+        return ERROR_RESULT;
+    }
+
+    context->pointerToMappedRegion = MapViewOfFile(context->storageFileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    if (context->pointerToMappedRegion == NULL)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to map view of file.", GetLastError());
+        CloseHandle(context->storageFileMappingHandle);
+        context->storageFileMappingHandle = INVALID_HANDLE_VALUE;
+        return ERROR_RESULT;
+    }
+#elif defined(UNIX)
+    // Implementation for Unix/Linux
+    context->pointerToMappedRegion = mmap(NULL, context->storageFileSizeInBytes, PROT_READ | PROT_WRITE, MAP_SHARED, context->storageFileHandle, 0);
+    if (context->pointerToMappedRegion == MAP_FAILED)
+    {
+        ERROR_MESSAGE_WITH_CODE("Failed to map file.", errno);
+        return ERROR_RESULT;
+    }
+#endif
+
+    // Set up pointers to data structures in mapped memory
+    uint64_t* currentPointer = (uint64_t*)context->pointerToMappedRegion;
+    
+    context->pointerToDataSeal = currentPointer++;
+    context->pointerToLinkIndexSize = currentPointer++;
+    context->pointerToMappingLinksMaxSize = currentPointer++;
+    
+    context->pointerToPointerToMappingLinks = (link_index*)currentPointer;
+    currentPointer = (uint64_t*)((char*)currentPointer + context->baseLinksSizeInBytes);
+    
+    context->pointerToLinksMaxSize = (link_index*)currentPointer++;
+    context->pointerToLinksSize = (link_index*)currentPointer++;
+    
+    context->pointerToLinks = (Link*)currentPointer;
+    
+    // Initialize data if this is a new file
+    if (*context->pointerToDataSeal != LINKS_DATA_SEAL_64BIT)
+    {
+        *context->pointerToDataSeal = LINKS_DATA_SEAL_64BIT;
+        *context->pointerToLinkIndexSize = sizeof(link_index);
+        *context->pointerToMappingLinksMaxSize = context->baseLinksSizeInBytes / sizeof(link_index);
+        
+        uint64_t maxLinksCount = (context->storageFileSizeInBytes - context->serviceBlockSizeInBytes) / sizeof(Link);
+        *context->pointerToLinksMaxSize = (link_index)maxLinksCount;
+        *context->pointerToLinksSize = 1; // Reserve index 0 for null
+        
+        // Clear the links array
+        memset(context->pointerToLinks, 0, maxLinksCount * sizeof(Link));
+    }
+    
+    context->pointerToUnusedMarker = context->pointerToLinks; // Index 0 is unused marker
+    
+    return SUCCESS_RESULT;
+}
+
+signed_integer ResetStorageFileMemoryMappingWithContext(LinksContext* context)
+{
+    if (context == NULL) return SUCCESS_RESULT;
+    
+    signed_integer result = SUCCESS_RESULT;
+    
+    if (IsStorageFileMappedWithContext(context))
+    {
+#if defined(WINDOWS)
+        if (!UnmapViewOfFile(context->pointerToMappedRegion))
+        {
+            ERROR_MESSAGE_WITH_CODE("Failed to unmap view of file.", GetLastError());
+            result = ERROR_RESULT;
+        }
+        if (!CloseHandle(context->storageFileMappingHandle))
+        {
+            ERROR_MESSAGE_WITH_CODE("Failed to close file mapping.", GetLastError());
+            result = ERROR_RESULT;
+        }
+        context->storageFileMappingHandle = INVALID_HANDLE_VALUE;
+        context->pointerToMappedRegion = NULL;
+#elif defined(UNIX)
+        if (munmap(context->pointerToMappedRegion, context->storageFileSizeInBytes) != 0)
+        {
+            ERROR_MESSAGE_WITH_CODE("Failed to unmap file.", errno);
+            result = ERROR_RESULT;
+        }
+        context->pointerToMappedRegion = MAP_FAILED;
+#endif
+    }
+    
+    return result;
+}
+
+signed_integer ResizeStorageFileWithContext(LinksContext* context)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+    if (succeeded(EnsureStorageFileOpenedWithContext(context)))
+    {
+        if (!IsStorageFileMappedWithContext(context))
+        {
+#if defined(WINDOWS)
+            LARGE_INTEGER distanceToMoveFilePointer = { 0 };
+            LARGE_INTEGER currentFilePointer = { 0 };
+            if (!SetFilePointerEx(context->storageFileHandle, distanceToMoveFilePointer, &currentFilePointer, FILE_CURRENT))
+            {
+                ERROR_MESSAGE_WITH_CODE("Failed to get current file pointer.", GetLastError());
+                return ERROR_RESULT;
+            }
+
+            distanceToMoveFilePointer.QuadPart = context->storageFileSizeInBytes - currentFilePointer.QuadPart;
+
+            if (!SetFilePointerEx(context->storageFileHandle, distanceToMoveFilePointer, NULL, FILE_END))
+            {
+                ERROR_MESSAGE_WITH_CODE("Failed to set file pointer.", GetLastError());
+                return ERROR_RESULT;
+            }
+
+            if (!SetEndOfFile(context->storageFileHandle))
+            {
+                ERROR_MESSAGE_WITH_CODE("Failed to resize file.", GetLastError());
+                return ERROR_RESULT;
+            }
+#elif defined(UNIX)
+            if (ftruncate(context->storageFileHandle, context->storageFileSizeInBytes) != 0)
+            {
+                ERROR_MESSAGE_WITH_CODE("Failed to resize file.", errno);
+                return ERROR_RESULT;
+            }
+#endif
+        }
+        else
+        {
+            ERROR_MESSAGE("Storage file mapping should be reset before file resize.");
+            return ERROR_RESULT;
+        }
+    }
+    else
+    {
+        return ERROR_RESULT;
+    }
+
+    return SUCCESS_RESULT;
+}
+
+static signed_integer EnsureStorageFileMappedWithContext(LinksContext* context)
+{
+    if (!IsStorageFileMappedWithContext(context))
+    {
+        ERROR_MESSAGE("Storage file is not mapped.");
+        return ERROR_RESULT;
+    }
+    return SUCCESS_RESULT;
+}
+
+signed_integer EnlargeStorageFileWithContext(LinksContext* context)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+    int64_t increment = context->baseBlockSizeInBytes;
+    
+    signed_integer result = ResetStorageFileMemoryMappingWithContext(context);
+    
+    if (succeeded(result))
+    {
+        context->storageFileSizeInBytes += increment;
+        result = ResizeStorageFileWithContext(context);
+        
+        if (succeeded(result))
+        {
+            result = SetStorageFileMemoryMappingWithContext(context);
+        }
+    }
+    
+    return result;
+}
+
+signed_integer ShrinkStorageFileWithContext(LinksContext* context)
+{
+    if (context == NULL) return ERROR_RESULT;
+    
+    uint64_t currentLinksCount = *context->pointerToLinksSize;
+    uint64_t currentLinksMemorySize = currentLinksCount * sizeof(Link);
+    uint64_t requiredFileSize = context->serviceBlockSizeInBytes + currentLinksMemorySize;
+    
+    if (context->storageFileSizeInBytes > requiredFileSize + context->baseBlockSizeInBytes)
+    {
+        signed_integer result = ResetStorageFileMemoryMappingWithContext(context);
+        
+        if (succeeded(result))
+        {
+            context->storageFileSizeInBytes = requiredFileSize + context->baseBlockSizeInBytes;
+            result = ResizeStorageFileWithContext(context);
+            
+            if (succeeded(result))
+            {
+                result = SetStorageFileMemoryMappingWithContext(context);
+            }
+        }
+        
+        return result;
+    }
+    
+    return SUCCESS_RESULT;
+}
+
+void AttachLinkToUnusedMarkerWithContext(LinksContext* context, link_index linkIndex)
+{
+    if (context == NULL) return;
+    
+    Link *link = GetLinkWithContext(context, linkIndex);
+    link->SourceIndex = context->pointerToUnusedMarker->SourceIndex;
+    context->pointerToUnusedMarker->SourceIndex = linkIndex;
+    
+    // Clear other fields
+    link->LinkerIndex = null;
+    link->TargetIndex = null;
+    link->Timestamp = 0;
+}
+
+void DetachLinkFromUnusedMarkerWithContext(LinksContext* context, link_index linkIndex)
+{
+    if (context == NULL) return;
+    
+    link_index* currentLinkIndexPointer = &context->pointerToUnusedMarker->SourceIndex;
+    
+    while (*currentLinkIndexPointer != linkIndex && *currentLinkIndexPointer != null)
+    {
+        Link *currentLink = GetLinkWithContext(context, *currentLinkIndexPointer);
+        currentLinkIndexPointer = &currentLink->SourceIndex;
+    }
+    
+    if (*currentLinkIndexPointer != null)
+    {
+        Link *detachedLink = GetLinkWithContext(context, linkIndex);
+        *currentLinkIndexPointer = detachedLink->SourceIndex;
+    }
 }
