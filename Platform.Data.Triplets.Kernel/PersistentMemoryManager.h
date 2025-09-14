@@ -6,11 +6,15 @@
 #include "Common.h"
 #include "Link.h"
 
+// Forward declaration
+struct LinksContext;
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
     void InitPersistentMemoryManager();
+    void InitPersistentMemoryManagerWithContext(struct LinksContext* context);
     
     signed_integer OpenStorageFile(char* filename);
     signed_integer CloseStorageFile();
@@ -18,6 +22,14 @@ extern "C" {
     signed_integer ShrinkStorageFile();
     signed_integer SetStorageFileMemoryMapping();
     signed_integer ResetStorageFileMemoryMapping();
+    
+    // Context-aware internal functions
+    signed_integer OpenStorageFileWithContext(struct LinksContext* context, char* filename);
+    signed_integer CloseStorageFileWithContext(struct LinksContext* context);
+    signed_integer EnlargeStorageFileWithContext(struct LinksContext* context);
+    signed_integer ShrinkStorageFileWithContext(struct LinksContext* context);
+    signed_integer SetStorageFileMemoryMappingWithContext(struct LinksContext* context);
+    signed_integer ResetStorageFileMemoryMappingWithContext(struct LinksContext* context);
     
     PREFIX_DLL signed_integer OpenLinks(char* filename);
     PREFIX_DLL signed_integer CloseLinks();
@@ -36,6 +48,12 @@ extern "C" {
 
     Link* GetLink(link_index linkIndex);
     link_index GetLinkIndex(Link* link);
+    
+    // Context-aware internal functions
+    Link* GetLinkWithContext(struct LinksContext* context, link_index linkIndex);
+    link_index GetLinkIndexWithContext(struct LinksContext* context, Link* link);
+    link_index AllocateLinkWithContext(struct LinksContext* context);
+    void FreeLinkWithContext(struct LinksContext* context, link_index link);
 
 #if defined(__cplusplus)
 }
